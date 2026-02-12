@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lena Kits V5 (Lista Editável)</title>
+    <title>Lena Kits V6 (Final)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,7 +49,7 @@
         <div class="p-8 text-center">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-sky-100 text-brand-600 rounded-full mb-3 text-2xl shadow-inner border-4 border-white"><i class="fa-solid fa-bottle-droplet"></i></div>
             <h1 class="text-3xl font-display font-bold text-brand-800 tracking-tight">Lena<span class="text-brand-orange">Kits</span></h1>
-            <p class="text-xs text-slate-400 mt-1 font-semibold tracking-widest uppercase">Gestão V5</p>
+            <p class="text-xs text-slate-400 mt-1 font-semibold tracking-widest uppercase">Gestão V6</p>
         </div>
         <nav class="flex-1 px-6 space-y-3 mt-2">
             <button onclick="mudarAba('clientes')" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-slate-500 hover:bg-sky-50 hover:text-brand-600 transition-all group font-bold bg-sky-50 text-brand-600 shadow-sm" id="btn-clientes"><i class="fa-solid fa-users w-5"></i> Clientes</button>
@@ -218,35 +218,48 @@
             renderClientes(); renderProdutos();
         }
 
-        // === LISTA DE COMPRAS EDITÁVEL ===
+        // === LISTA DE COMPRAS (CORRIGIDA - SEM TRAVAMENTO) ===
         window.gerarListaCompras = async () => {
             const dInicio = document.getElementById('dataInicio').value;
             const dFim = document.getElementById('dataFim').value;
-            if(!dInicio || !dFim) return alert("Selecione a data de Início e Fim!");
-            if(dInicio > dFim) return alert("Erro na data.");
+            if(!dInicio || !dFim) return alert("Selecione Início e Fim!");
+            if(dInicio > dFim) return alert("Datas inválidas.");
 
             const div = document.getElementById('ml-conteudo');
-            div.innerHTML = '<p class="text-center text-slate-400">Somando...</p>';
+            div.innerHTML = '<p class="text-center text-slate-400 font-bold animate-pulse">Buscando Vendas...</p>';
             document.getElementById('modalLista').classList.remove('hidden');
             document.getElementById('ml-data').innerText = `${dInicio.split('-').reverse().join('/')} até ${dFim.split('-').reverse().join('/')}`;
 
-            const snap = await db.collection("transacoes").where("tipo", "==", "VENDA").where("data", ">=", dInicio).where("data", "<=", dFim).get();
-            if(snap.empty) { div.innerHTML = '<p class="text-center text-slate-400 py-10">Nenhuma venda.</p>'; return; }
+            // BUSCA TODAS AS VENDAS (SEM FILTRO NO BANCO PARA NÃO TRAVAR)
+            const snap = await db.collection("transacoes").where("tipo", "==", "VENDA").get();
+            if(snap.empty) { div.innerHTML = '<p class="text-center text-slate-400 py-10">Nenhuma venda registrada.</p>'; return; }
 
             let listaFinal = {};
+            let encontrou = false;
+
             snap.forEach(doc => {
-                doc.data().descricao.split(', ').forEach(itemStr => {
-                    const partes = itemStr.split('x ');
-                    if(partes.length < 2) return;
-                    const qtdVenda = parseInt(partes[0]), nomeKit = partes[1].trim();
-                    if(RECEITAS[nomeKit]) { for (const [ing, qtdRec] of Object.entries(RECEITAS[nomeKit])) { listaFinal[ing] = (listaFinal[ing] || 0) + (qtdRec * qtdVenda); } } 
-                    else { listaFinal[nomeKit] = (listaFinal[nomeKit] || 0) + qtdVenda; }
-                });
+                const venda = doc.data();
+                // FILTRO DE DATA FEITO AQUI NO SITE (RÁPIDO E SEGURO)
+                if(venda.data >= dInicio && venda.data <= dFim) {
+                    encontrou = true;
+                    if(venda.descricao) {
+                        venda.descricao.split(', ').forEach(itemStr => {
+                            const partes = itemStr.split('x ');
+                            if(partes.length >= 2) {
+                                const qtdVenda = parseInt(partes[0]), nomeKit = partes[1].trim();
+                                if(RECEITAS[nomeKit]) { for (const [ing, qtdRec] of Object.entries(RECEITAS[nomeKit])) { listaFinal[ing] = (listaFinal[ing] || 0) + (qtdRec * qtdVenda); } } 
+                                else { listaFinal[nomeKit] = (listaFinal[nomeKit] || 0) + qtdVenda; }
+                            }
+                        });
+                    }
+                }
             });
+
+            if(!encontrou) { div.innerHTML = '<p class="text-center text-slate-400 py-10">Nenhuma venda neste período.</p>'; return; }
 
             div.innerHTML = '';
             const listaOrdenada = Object.entries(listaFinal).sort((a,b) => a[0].localeCompare(b[0]));
-            if(listaOrdenada.length === 0) { div.innerHTML = '<p class="text-center text-slate-400">Nada encontrado.</p>'; return; }
+            if(listaOrdenada.length === 0) { div.innerHTML = '<p class="text-center text-slate-400">Sem itens identificáveis.</p>'; return; }
 
             // Gera INPUTS Editáveis
             listaOrdenada.forEach(([nome, qtd], idx) => {
@@ -267,7 +280,6 @@
             for(let i=0; i<itens.length; i++) {
                 const check = document.getElementById(`check-${i}`);
                 const qtd = document.getElementById(`qtd-${i}`).value;
-                // Pega o nome dentro da div irmã
                 const nome = itens[i].querySelector('div.flex-1').innerText;
                 
                 if(check.checked) {
@@ -280,7 +292,7 @@
             mostrarToast("Lista Copiada!");
         };
 
-        // --- OUTRAS FUNÇÕES (Mesmas da V4) ---
+        // --- OUTRAS FUNÇÕES ---
         window.carregarKitsIniciais = async () => { if(!confirm("Recarregar Kits Padrão?")) return; for(const kit of KITS_CADASTRO) { const existe = PRODUTOS.find(p => p.nome === kit.nome); if(!existe) await db.collection("produtos_lena").add(kit); } mostrarToast("Kits Atualizados!"); await carregarDados(); };
         window.renderClientes = () => { const grid = document.getElementById('gridClientes'), busca = document.getElementById('buscaNome').value.toUpperCase(), setor = document.getElementById('filtroSetor').value; grid.innerHTML = ''; const filtrados = CLIENTES.filter(c => (!busca || c.nome.includes(busca)) && (!setor || c.setor === setor)); if(filtrados.length === 0) { grid.innerHTML = `<div class="col-span-3 text-center py-10 opacity-50"><p>Ninguém encontrado.</p></div>`; return; } filtrados.forEach(c => { const saldo = c.saldo || 0, devendo = saldo < -0.05, venc = calcularVencimento(c.dia_pagamento, c.ultima_venda), dataVenc = venc ? venc.toLocaleDateString('pt-BR') : '---'; grid.innerHTML += `<div class="bg-white rounded-[2rem] p-6 shadow-sm border border-sky-50 relative group"><button onclick="abrirEditar('${c.id}')" class="absolute top-5 right-5 text-slate-200 hover:text-brand-500"><i class="fa-solid fa-pen"></i></button><div class="flex items-center gap-4 mb-5"><div class="w-14 h-14 rounded-2xl ${devendo ? 'bg-red-50 text-red-400' : 'bg-green-50 text-green-500'} flex items-center justify-center font-bold text-2xl shadow-inner">${c.nome.charAt(0)}</div><div class="overflow-hidden"><h3 class="font-bold text-slate-700 truncate text-lg">${c.nome}</h3><span class="text-[10px] bg-slate-50 text-slate-400 px-2 py-1 rounded-lg font-bold uppercase">${c.setor}</span></div></div><div class="flex justify-between items-end bg-slate-50/50 p-4 rounded-2xl mb-4 border border-slate-50"><div><p class="text-[10px] text-slate-400 font-bold uppercase">Saldo</p><p class="text-2xl font-black ${devendo ? 'text-red-400' : 'text-green-500'}">R$ ${Math.abs(saldo).toFixed(2)}</p></div><div class="text-right"><p class="text-[10px] text-slate-400 font-bold uppercase">Vence</p><p class="text-sm font-bold text-slate-600">${dataVenc}</p></div></div><div class="grid grid-cols-3 gap-2"><button onclick="abrirVenda('${c.id}')" class="bg-sky-50 text-brand-600 hover:bg-brand-500 hover:text-white py-3 rounded-xl text-sm font-bold transition">Vender</button><button onclick="abrirPagamento('${c.id}')" class="bg-green-50 text-green-600 hover:bg-green-500 hover:text-white py-3 rounded-xl text-sm font-bold transition">Receber</button><button onclick="verExtrato('${c.id}')" class="bg-slate-100 text-slate-500 hover:bg-slate-600 hover:text-white py-3 rounded-xl text-sm font-bold transition">Histórico</button></div></div>`; }); };
         window.renderCobranca = (tipo) => { const lista = document.getElementById('listaCobranca'); lista.innerHTML = ''; let total = 0; const filtrados = CLIENTES.filter(c => c.saldo < -0.01 && c.dia_pagamento && obterStatusVenc(c.dia_pagamento, c.ultima_venda) === tipo); if(filtrados.length===0) lista.innerHTML = `<div class="p-10 text-center text-slate-400 font-medium">Ninguém aqui! 🎉</div>`; filtrados.forEach(c => { total += Math.abs(c.saldo); const venc = calcularVencimento(c.dia_pagamento, c.ultima_venda).toLocaleDateString('pt-BR'); lista.innerHTML += `<div class="p-5 flex justify-between items-center hover:bg-slate-50 border-b border-slate-100 last:border-0 transition"><div><div class="font-bold text-slate-700 text-lg">${c.nome}</div><div class="text-xs text-slate-400 font-bold">Vence: ${venc}</div></div><div class="flex items-center gap-4"><div class="font-black text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${Math.abs(c.saldo).toFixed(2)}</div><a href="${gerarLinkZap(c, tipo, venc)}" target="_blank" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 shadow-md transition"><i class="fa-brands fa-whatsapp"></i></a></div></div>`; }); document.getElementById(`total-${tipo}`).innerText = `R$ ${total.toFixed(2)}`; };
