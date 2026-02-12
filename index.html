@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lena Kits V6 (Final)</title>
+    <title>Lena Kits V6 (Final Corrigido)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -178,11 +178,89 @@
         </div>
     </div>
 
-    <div id="modalVenda" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden animate-slide-up"><div class="bg-brand-600 p-6 flex justify-between items-center text-white"><div><h3 class="font-bold text-xl">Nova Venda</h3><p class="text-xs opacity-90" id="mv-nome">Cliente</p></div><button onclick="fecharModal('modalVenda')" class="bg-white/20 w-8 h-8 rounded-full">✕</button></div><div class="p-6 space-y-4"><div class="flex gap-2 items-center bg-sky-50 p-3 rounded-2xl border border-sky-100"><input type="date" id="mv-data" class="bg-transparent text-brand-700 text-sm outline-none font-bold ml-auto"></div><div class="space-y-2"><div class="flex gap-2"><select id="mv-prod" onchange="atualizarDescKit()" class="flex-1 border-2 border-slate-100 bg-white p-3 rounded-xl outline-none text-slate-700 font-bold text-sm"></select><input id="mv-qtd" type="number" value="1" class="w-16 border-2 border-slate-100 p-3 rounded-xl text-center outline-none font-bold"><button onclick="addCarrinho()" class="bg-brand-orange text-white w-12 rounded-xl font-bold text-xl shadow-md">+</button></div><div id="mv-desc-kit" class="text-xs text-slate-500 bg-slate-50 p-2 rounded-lg italic hidden"></div></div><div id="mv-lista" class="bg-slate-50 p-4 rounded-2xl h-40 overflow-y-auto space-y-2 border border-slate-100"><div class="text-center text-xs text-slate-400 mt-14">Cesta vazia 🛒</div></div><div class="flex justify-between font-bold text-2xl text-slate-700 pt-2 border-t border-slate-200"><span class="text-sm text-slate-400 self-center uppercase">Total</span> <span id="mv-total">R$ 0,00</span></div><button onclick="finalizarVenda()" class="w-full bg-brand-600 text-white py-4 rounded-2xl font-bold shadow-xl">CONFIRMAR</button></div></div></div>
-    <div id="modalPgto" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl p-8 text-center animate-slide-up relative"><button onclick="fecharModal('modalPgto')" class="absolute top-5 right-6 text-slate-300 text-xl">✕</button><div class="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl"><i class="fa-solid fa-hand-holding-dollar"></i></div><h3 class="font-bold text-xl text-slate-800">Receber</h3><p class="text-sm text-slate-400 mb-6 font-medium" id="mp-nome">...</p><input type="date" id="mp-data" class="w-full mb-4 p-3 bg-slate-50 rounded-2xl text-center font-bold text-sm"><div class="relative mb-8"><span class="absolute left-6 top-4 text-green-300 font-bold text-2xl">R$</span><input type="number" id="mp-valor" class="w-full pl-10 pr-4 py-4 bg-green-50 rounded-3xl text-4xl font-bold text-green-600 outline-none text-center"></div><button onclick="confirmarPgto()" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold shadow-xl">CONFIRMAR</button></div></div>
-    <div id="modalExtrato" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden animate-slide-up flex flex-col max-h-[90vh]"><div class="bg-white p-6 border-b border-slate-100 flex justify-between items-center"><div><h3 class="font-bold text-xl">Histórico</h3><p class="text-xs font-bold text-brand-400 uppercase" id="ex-nome">Cliente</p></div><button onclick="fecharModal('modalExtrato')" class="w-8 h-8 rounded-full bg-slate-50">✕</button></div><div class="p-0 overflow-y-auto flex-1 bg-slate-50"><table class="w-full text-left border-collapse"><thead class="bg-slate-100 text-slate-400 text-[10px] uppercase font-bold sticky top-0"><tr><th class="p-4">Data</th><th class="p-4">Movimentação</th><th class="p-4 text-right">Valor</th></tr></thead><tbody id="ex-lista" class="text-sm divide-y divide-slate-100 bg-white"></tbody></table></div><div class="p-5 bg-white border-t border-slate-100 flex justify-between items-center"><span class="text-slate-400 text-xs font-bold uppercase">Saldo</span><span id="ex-saldo-final" class="font-bold text-2xl text-slate-800">R$ 0,00</span></div></div></div>
-    <div id="modalEditar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4"><div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-8 animate-slide-up relative"><h3 class="font-bold text-xl mb-6 flex items-center gap-2">Editar</h3><div class="space-y-4"><input id="ed-nome" class="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none"><div class="grid grid-cols-2 gap-4"><select id="ed-setor" class="w-full p-4 border rounded-2xl bg-white font-medium"></select><select id="ed-dia" class="w-full p-4 border rounded-2xl bg-white font-medium"></select></div><input id="ed-tel" class="w-full p-4 bg-slate-50 rounded-2xl border-none"></div><div class="flex gap-3 mt-8"><button onclick="fecharModal('modalEditar')" class="flex-1 bg-slate-100 font-bold py-4 rounded-2xl">Cancelar</button><button onclick="salvarEdicao()" class="flex-1 bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-lg">Salvar</button></div></div></div>
-    <div id="toast" class="fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all z-[60] font-bold flex items-center gap-3"><i class="fa-solid fa-circle-check text-green-400 text-xl"></i> <span id="toast-msg">Sucesso!</span></div>
+    <div id="modalVenda" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden animate-slide-up">
+            <div class="bg-brand-600 p-6 flex justify-between items-center text-white">
+                <div><h3 class="font-bold text-xl">Nova Venda</h3><p class="text-xs opacity-90" id="mv-nome">Cliente</p></div>
+                <button onclick="fecharModal('modalVenda')" class="bg-white/20 w-8 h-8 rounded-full">✕</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex gap-2 items-center bg-sky-50 p-3 rounded-2xl border border-sky-100">
+                    <input type="date" id="mv-data" class="bg-transparent text-brand-700 text-sm outline-none font-bold ml-auto">
+                </div>
+                <div class="space-y-2">
+                    <div class="flex gap-2">
+                        <select id="mv-prod" onchange="atualizarDescKit()" class="flex-1 border-2 border-slate-100 bg-white p-3 rounded-xl outline-none text-slate-700 font-bold text-sm"></select>
+                        <input id="mv-qtd" type="number" value="1" class="w-16 border-2 border-slate-100 p-3 rounded-xl text-center outline-none font-bold">
+                        <button onclick="addCarrinho()" class="bg-brand-orange text-white w-12 rounded-xl font-bold text-xl shadow-md">+</button>
+                    </div>
+                    <div id="mv-desc-kit" class="text-xs text-slate-500 bg-slate-50 p-2 rounded-lg italic hidden"></div>
+                </div>
+                <div id="mv-lista" class="bg-slate-50 p-4 rounded-2xl h-40 overflow-y-auto space-y-2 border border-slate-100">
+                    <div class="text-center text-xs text-slate-400 mt-14">Cesta vazia 🛒</div>
+                </div>
+                <div class="flex justify-between font-bold text-2xl text-slate-700 pt-2 border-t border-slate-200">
+                    <span class="text-sm text-slate-400 self-center uppercase">Total</span> <span id="mv-total">R$ 0,00</span>
+                </div>
+                <button onclick="finalizarVenda()" class="w-full bg-brand-600 text-white py-4 rounded-2xl font-bold shadow-xl">CONFIRMAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPgto" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl p-8 text-center animate-slide-up relative">
+            <button onclick="fecharModal('modalPgto')" class="absolute top-5 right-6 text-slate-300 text-xl">✕</button>
+            <div class="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+            <h3 class="font-bold text-xl text-slate-800">Receber Pagamento</h3>
+            <p class="text-sm text-slate-400 mb-6 font-medium" id="mp-nome">...</p>
+            <input type="date" id="mp-data" class="w-full mb-4 p-3 bg-slate-50 rounded-2xl text-center font-bold text-sm">
+            <div class="relative mb-8">
+                <span class="absolute left-6 top-4 text-green-300 font-bold text-2xl">R$</span>
+                <input type="number" id="mp-valor" class="w-full pl-10 pr-4 py-4 bg-green-50 rounded-3xl text-4xl font-bold text-green-600 outline-none text-center">
+            </div>
+            <button onclick="confirmarPgto()" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold shadow-xl">CONFIRMAR</button>
+        </div>
+    </div>
+    
+    <div id="modalExtrato" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
+            <div class="bg-white p-6 border-b border-slate-100 flex justify-between items-center">
+                <div><h3 class="font-bold text-xl">Histórico</h3><p class="text-xs font-bold text-brand-400 uppercase" id="ex-nome">Cliente</p></div>
+                <button onclick="fecharModal('modalExtrato')" class="w-8 h-8 rounded-full bg-slate-50">✕</button>
+            </div>
+            <div class="p-0 overflow-y-auto flex-1 bg-slate-50">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-100 text-slate-400 text-[10px] uppercase font-bold sticky top-0"><tr><th class="p-4">Data</th><th class="p-4">Movimentação</th><th class="p-4 text-right">Valor</th></tr></thead>
+                    <tbody id="ex-lista" class="text-sm divide-y divide-slate-100 bg-white"></tbody>
+                </table>
+            </div>
+            <div class="p-5 bg-white border-t border-slate-100 flex justify-between items-center">
+                <span class="text-slate-400 text-xs font-bold uppercase">Saldo</span><span id="ex-saldo-final" class="font-bold text-2xl text-slate-800">R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalEditar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-8 animate-slide-up relative">
+            <h3 class="font-bold text-xl mb-6 flex items-center gap-2">Editar</h3>
+            <div class="space-y-4">
+                <input id="ed-nome" class="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none">
+                <div class="grid grid-cols-2 gap-4">
+                    <select id="ed-setor" class="w-full p-4 border rounded-2xl bg-white font-medium"></select>
+                    <select id="ed-dia" class="w-full p-4 border rounded-2xl bg-white font-medium"></select>
+                </div>
+                <input id="ed-tel" class="w-full p-4 bg-slate-50 rounded-2xl border-none">
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button onclick="fecharModal('modalEditar')" class="flex-1 bg-slate-100 font-bold py-4 rounded-2xl">Cancelar</button>
+                <button onclick="salvarEdicao()" class="flex-1 bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-lg">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all z-[60] font-bold flex items-center gap-3">
+        <i class="fa-solid fa-circle-check text-green-400 text-xl"></i> <span id="toast-msg">Sucesso!</span>
+    </div>
 
     <script>
         // CONFIG FIREBASE (LENA-BE4E0)
@@ -206,19 +284,38 @@
 
         window.onload = async () => {
             const diasHtml = '<option value="">Sem dia fixo</option>' + [...Array(31)].map((_, i) => `<option value="${i+1}">Dia ${i+1}</option>`).join('');
-            document.getElementById('novoDia').innerHTML = diasHtml; document.getElementById('ed-dia').innerHTML = diasHtml; document.getElementById('ed-setor').innerHTML = document.getElementById('novoSetor').innerHTML;
-            const hoje = new Date(); document.getElementById('dataInicio').valueAsDate = new Date(hoje.getFullYear(), hoje.getMonth(), 1); document.getElementById('dataFim').valueAsDate = hoje;
+            document.getElementById('novoDia').innerHTML = diasHtml; 
+            document.getElementById('ed-dia').innerHTML = diasHtml; 
+            document.getElementById('ed-setor').innerHTML = document.getElementById('novoSetor').innerHTML;
+            const hoje = new Date(); 
+            document.getElementById('dataInicio').valueAsDate = new Date(hoje.getFullYear(), hoje.getMonth(), 1); 
+            document.getElementById('dataFim').valueAsDate = hoje;
             await carregarDados();
         };
 
         async function carregarDados() {
-            const snapC = await db.collection("clientes").get(); CLIENTES = []; snapC.forEach(d => CLIENTES.push({id: d.id, ...d.data()})); CLIENTES.sort((a,b) => a.nome.localeCompare(b.nome));
-            const snapP = await db.collection("produtos_lena").get(); PRODUTOS = []; snapP.forEach(d => PRODUTOS.push({id: d.id, ...d.data()})); PRODUTOS.sort((a,b) => a.preco - b.preco);
-            try { const snapCfg = await db.collection("config_lena").doc("templates").get(); if(snapCfg.exists) CONFIG = snapCfg.data(); document.getElementById('cfgPix').value = CONFIG.pix||""; document.getElementById('msgHoje').value = CONFIG.hoje||""; document.getElementById('msgAtrasado').value = CONFIG.atrasado||""; } catch(e){}
-            renderClientes(); renderProdutos();
+            const snapC = await db.collection("clientes").get(); 
+            CLIENTES = []; 
+            snapC.forEach(d => CLIENTES.push({id: d.id, ...d.data()})); 
+            CLIENTES.sort((a,b) => a.nome.localeCompare(b.nome));
+            
+            const snapP = await db.collection("produtos_lena").get(); 
+            PRODUTOS = []; 
+            snapP.forEach(d => PRODUTOS.push({id: d.id, ...d.data()})); 
+            PRODUTOS.sort((a,b) => a.preco - b.preco);
+            
+            try { 
+                const snapCfg = await db.collection("config_lena").doc("templates").get(); 
+                if(snapCfg.exists) CONFIG = snapCfg.data(); 
+                document.getElementById('cfgPix').value = CONFIG.pix||""; 
+                document.getElementById('msgHoje').value = CONFIG.hoje||""; 
+                document.getElementById('msgAtrasado').value = CONFIG.atrasado||""; 
+            } catch(e){}
+            renderClientes(); 
+            renderProdutos();
         }
 
-        // === LISTA DE COMPRAS (CORRIGIDA - SEM TRAVAMENTO) ===
+        // === LISTA DE COMPRAS (CORRIGIDA) ===
         window.gerarListaCompras = async () => {
             const dInicio = document.getElementById('dataInicio').value;
             const dFim = document.getElementById('dataFim').value;
@@ -230,7 +327,6 @@
             document.getElementById('modalLista').classList.remove('hidden');
             document.getElementById('ml-data').innerText = `${dInicio.split('-').reverse().join('/')} até ${dFim.split('-').reverse().join('/')}`;
 
-            // BUSCA TODAS AS VENDAS (SEM FILTRO NO BANCO PARA NÃO TRAVAR)
             const snap = await db.collection("transacoes").where("tipo", "==", "VENDA").get();
             if(snap.empty) { div.innerHTML = '<p class="text-center text-slate-400 py-10">Nenhuma venda registrada.</p>'; return; }
 
@@ -239,7 +335,6 @@
 
             snap.forEach(doc => {
                 const venda = doc.data();
-                // FILTRO DE DATA FEITO AQUI NO SITE (RÁPIDO E SEGURO)
                 if(venda.data >= dInicio && venda.data <= dFim) {
                     encontrou = true;
                     if(venda.descricao) {
@@ -261,7 +356,6 @@
             const listaOrdenada = Object.entries(listaFinal).sort((a,b) => a[0].localeCompare(b[0]));
             if(listaOrdenada.length === 0) { div.innerHTML = '<p class="text-center text-slate-400">Sem itens identificáveis.</p>'; return; }
 
-            // Gera INPUTS Editáveis
             listaOrdenada.forEach(([nome, qtd], idx) => {
                 div.innerHTML += `
                 <div class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:bg-slate-50 transition">
@@ -276,12 +370,10 @@
             const itens = document.getElementById('ml-conteudo').children;
             let texto = `*LISTA DE COMPRAS LENA*\nPeríodo: ${document.getElementById('ml-data').innerText}\n\n`;
             let count = 0;
-            
             for(let i=0; i<itens.length; i++) {
                 const check = document.getElementById(`check-${i}`);
                 const qtd = document.getElementById(`qtd-${i}`).value;
                 const nome = itens[i].querySelector('div.flex-1').innerText;
-                
                 if(check.checked) {
                     texto += `[ ] ${qtd} - ${nome}\n`;
                     count++;
@@ -292,11 +384,79 @@
             mostrarToast("Lista Copiada!");
         };
 
-        // --- OUTRAS FUNÇÕES ---
-        window.carregarKitsIniciais = async () => { if(!confirm("Recarregar Kits Padrão?")) return; for(const kit of KITS_CADASTRO) { const existe = PRODUTOS.find(p => p.nome === kit.nome); if(!existe) await db.collection("produtos_lena").add(kit); } mostrarToast("Kits Atualizados!"); await carregarDados(); };
-        window.renderClientes = () => { const grid = document.getElementById('gridClientes'), busca = document.getElementById('buscaNome').value.toUpperCase(), setor = document.getElementById('filtroSetor').value; grid.innerHTML = ''; const filtrados = CLIENTES.filter(c => (!busca || c.nome.includes(busca)) && (!setor || c.setor === setor)); if(filtrados.length === 0) { grid.innerHTML = `<div class="col-span-3 text-center py-10 opacity-50"><p>Ninguém encontrado.</p></div>`; return; } filtrados.forEach(c => { const saldo = c.saldo || 0, devendo = saldo < -0.05, venc = calcularVencimento(c.dia_pagamento, c.ultima_venda), dataVenc = venc ? venc.toLocaleDateString('pt-BR') : '---'; grid.innerHTML += `<div class="bg-white rounded-[2rem] p-6 shadow-sm border border-sky-50 relative group"><button onclick="abrirEditar('${c.id}')" class="absolute top-5 right-5 text-slate-200 hover:text-brand-500"><i class="fa-solid fa-pen"></i></button><div class="flex items-center gap-4 mb-5"><div class="w-14 h-14 rounded-2xl ${devendo ? 'bg-red-50 text-red-400' : 'bg-green-50 text-green-500'} flex items-center justify-center font-bold text-2xl shadow-inner">${c.nome.charAt(0)}</div><div class="overflow-hidden"><h3 class="font-bold text-slate-700 truncate text-lg">${c.nome}</h3><span class="text-[10px] bg-slate-50 text-slate-400 px-2 py-1 rounded-lg font-bold uppercase">${c.setor}</span></div></div><div class="flex justify-between items-end bg-slate-50/50 p-4 rounded-2xl mb-4 border border-slate-50"><div><p class="text-[10px] text-slate-400 font-bold uppercase">Saldo</p><p class="text-2xl font-black ${devendo ? 'text-red-400' : 'text-green-500'}">R$ ${Math.abs(saldo).toFixed(2)}</p></div><div class="text-right"><p class="text-[10px] text-slate-400 font-bold uppercase">Vence</p><p class="text-sm font-bold text-slate-600">${dataVenc}</p></div></div><div class="grid grid-cols-3 gap-2"><button onclick="abrirVenda('${c.id}')" class="bg-sky-50 text-brand-600 hover:bg-brand-500 hover:text-white py-3 rounded-xl text-sm font-bold transition">Vender</button><button onclick="abrirPagamento('${c.id}')" class="bg-green-50 text-green-600 hover:bg-green-500 hover:text-white py-3 rounded-xl text-sm font-bold transition">Receber</button><button onclick="verExtrato('${c.id}')" class="bg-slate-100 text-slate-500 hover:bg-slate-600 hover:text-white py-3 rounded-xl text-sm font-bold transition">Histórico</button></div></div>`; }); };
-        window.renderCobranca = (tipo) => { const lista = document.getElementById('listaCobranca'); lista.innerHTML = ''; let total = 0; const filtrados = CLIENTES.filter(c => c.saldo < -0.01 && c.dia_pagamento && obterStatusVenc(c.dia_pagamento, c.ultima_venda) === tipo); if(filtrados.length===0) lista.innerHTML = `<div class="p-10 text-center text-slate-400 font-medium">Ninguém aqui! 🎉</div>`; filtrados.forEach(c => { total += Math.abs(c.saldo); const venc = calcularVencimento(c.dia_pagamento, c.ultima_venda).toLocaleDateString('pt-BR'); lista.innerHTML += `<div class="p-5 flex justify-between items-center hover:bg-slate-50 border-b border-slate-100 last:border-0 transition"><div><div class="font-bold text-slate-700 text-lg">${c.nome}</div><div class="text-xs text-slate-400 font-bold">Vence: ${venc}</div></div><div class="flex items-center gap-4"><div class="font-black text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${Math.abs(c.saldo).toFixed(2)}</div><a href="${gerarLinkZap(c, tipo, venc)}" target="_blank" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 shadow-md transition"><i class="fa-brands fa-whatsapp"></i></a></div></div>`; }); document.getElementById(`total-${tipo}`).innerText = `R$ ${total.toFixed(2)}`; };
-        window.renderProdutos = () => { const lista = document.getElementById('listaProdutos'), sel = document.getElementById('mv-prod'); lista.innerHTML = ''; sel.innerHTML = '<option value="">Escolha o Kit...</option>'; PRODUTOS.forEach(p => { lista.innerHTML += `<div class="p-4 bg-white border border-sky-100 rounded-2xl shadow-sm"><div class="flex justify-between items-start mb-2"><span class="font-bold text-slate-700 text-lg">${p.nome}</span><span class="font-bold text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${p.preco.toFixed(2)}</span></div><p class="text-xs text-slate-500 italic bg-slate-50 p-2 rounded-lg">${p.desc || 'Sem descrição.'}</p></div>`; sel.innerHTML += `<option value="${p.preco}" data-nome="${p.nome}" data-desc="${p.desc || ''}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`; }); };
+        // --- RENDERIZAÇÃO DE CLIENTES (CORRIGIDA) ---
+        window.renderClientes = () => { 
+            const grid = document.getElementById('gridClientes');
+            const busca = document.getElementById('buscaNome').value.toUpperCase();
+            const setor = document.getElementById('filtroSetor').value; 
+            grid.innerHTML = ''; 
+            
+            const filtrados = CLIENTES.filter(c => (!busca || c.nome.includes(busca)) && (!setor || c.setor === setor)); 
+            
+            if(filtrados.length === 0) { 
+                grid.innerHTML = `<div class="col-span-3 text-center py-10 opacity-50"><p>Ninguém encontrado.</p></div>`; 
+                return; 
+            } 
+            
+            filtrados.forEach(c => { 
+                const saldo = c.saldo || 0;
+                const devendo = saldo < -0.05;
+                const venc = calcularVencimento(c.dia_pagamento, c.ultima_venda);
+                const dataVenc = venc ? venc.toLocaleDateString('pt-BR') : '---'; 
+                
+                grid.innerHTML += `
+                <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-sky-50 relative group">
+                    <button onclick="abrirEditar('${c.id}')" class="absolute top-5 right-5 text-slate-200 hover:text-brand-500"><i class="fa-solid fa-pen"></i></button>
+                    <div class="flex items-center gap-4 mb-5">
+                        <div class="w-14 h-14 rounded-2xl ${devendo ? 'bg-red-50 text-red-400' : 'bg-green-50 text-green-500'} flex items-center justify-center font-bold text-2xl shadow-inner">${c.nome.charAt(0)}</div>
+                        <div class="overflow-hidden">
+                            <h3 class="font-bold text-slate-700 truncate text-lg">${c.nome}</h3>
+                            <span class="text-[10px] bg-slate-50 text-slate-400 px-2 py-1 rounded-lg font-bold uppercase">${c.setor}</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-end bg-slate-50/50 p-4 rounded-2xl mb-4 border border-slate-50">
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Saldo</p>
+                            <p class="text-2xl font-black ${devendo ? 'text-red-400' : 'text-green-500'}">R$ ${Math.abs(saldo).toFixed(2)}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Vence</p>
+                            <p class="text-sm font-bold text-slate-600">${dataVenc}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="abrirVenda('${c.id}')" class="bg-sky-50 text-brand-600 hover:bg-brand-500 hover:text-white py-3 rounded-xl text-sm font-bold transition">Vender</button>
+                        <button onclick="abrirPagamento('${c.id}')" class="bg-green-50 text-green-600 hover:bg-green-500 hover:text-white py-3 rounded-xl text-sm font-bold transition">Receber</button>
+                        <button onclick="verExtrato('${c.id}')" class="bg-slate-100 text-slate-500 hover:bg-slate-600 hover:text-white py-3 rounded-xl text-sm font-bold transition">Histórico</button>
+                    </div>
+                </div>`; 
+            }); 
+        };
+
+        window.renderCobranca = (tipo) => { 
+            const lista = document.getElementById('listaCobranca'); 
+            lista.innerHTML = ''; 
+            let total = 0; 
+            const filtrados = CLIENTES.filter(c => c.saldo < -0.01 && c.dia_pagamento && obterStatusVenc(c.dia_pagamento, c.ultima_venda) === tipo); 
+            if(filtrados.length===0) lista.innerHTML = `<div class="p-10 text-center text-slate-400 font-medium">Ninguém aqui! 🎉</div>`; 
+            filtrados.forEach(c => { 
+                total += Math.abs(c.saldo); 
+                const venc = calcularVencimento(c.dia_pagamento, c.ultima_venda).toLocaleDateString('pt-BR'); 
+                lista.innerHTML += `<div class="p-5 flex justify-between items-center hover:bg-slate-50 border-b border-slate-100 last:border-0 transition"><div><div class="font-bold text-slate-700 text-lg">${c.nome}</div><div class="text-xs text-slate-400 font-bold">Vence: ${venc}</div></div><div class="flex items-center gap-4"><div class="font-black text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${Math.abs(c.saldo).toFixed(2)}</div><a href="${gerarLinkZap(c, tipo, venc)}" target="_blank" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 shadow-md transition"><i class="fa-brands fa-whatsapp"></i></a></div></div>`; 
+            }); 
+            document.getElementById(`total-${tipo}`).innerText = `R$ ${total.toFixed(2)}`; 
+        };
+
+        window.renderProdutos = () => { 
+            const lista = document.getElementById('listaProdutos'), sel = document.getElementById('mv-prod'); 
+            lista.innerHTML = ''; 
+            sel.innerHTML = '<option value="">Escolha o Kit...</option>'; 
+            PRODUTOS.forEach(p => { 
+                lista.innerHTML += `<div class="p-4 bg-white border border-sky-100 rounded-2xl shadow-sm"><div class="flex justify-between items-start mb-2"><span class="font-bold text-slate-700 text-lg">${p.nome}</span><span class="font-bold text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${p.preco.toFixed(2)}</span></div><p class="text-xs text-slate-500 italic bg-slate-50 p-2 rounded-lg">${p.desc || 'Sem descrição.'}</p></div>`; 
+                sel.innerHTML += `<option value="${p.preco}" data-nome="${p.nome}" data-desc="${p.desc || ''}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`; 
+            }); 
+        };
+
         window.atualizarDescKit = () => { const sel = document.getElementById('mv-prod'); const desc = sel.options[sel.selectedIndex]?.getAttribute('data-desc'); const d = document.getElementById('mv-desc-kit'); if(desc) { d.innerText = "Contém: " + desc; d.classList.remove('hidden'); } else { d.classList.add('hidden'); } };
         function calcularVencimento(dia, ultVenda) { if(!dia) return null; let d = ultVenda ? new Date(ultVenda + 'T12:00:00') : new Date(); let dPag = parseInt(dia), ano = d.getFullYear(), mes = d.getMonth(); if(d.getDate() > dPag) mes++; if(mes > 11) { mes = 0; ano++; } return new Date(ano, mes, Math.min(dPag, new Date(ano, mes + 1, 0).getDate())); }
         function obterStatusVenc(dia, ultVenda) { const v = calcularVencimento(dia, ultVenda); if(!v) return 'nada'; v.setHours(0,0,0,0); const hoje = new Date(); hoje.setHours(0,0,0,0); if(v.getTime() === hoje.getTime()) return 'hoje'; if(v.getTime() < hoje.getTime()) return 'atrasados'; return 'avencer'; }
