@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lena Kits V10.4 - Datas & Relatórios</title>
+    <title>Lena Kits V10.5 - Relatórios ON</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,11 +46,11 @@
             }
             .no-print { display: none !important; }
             .conteudo-print { box-shadow: none !important; border: none !important; max-width: 100% !important; }
-            table { width: 100% !important; border: 1px solid #000; }
-            th { background-color: #eee !important; color: #000 !important; border: 1px solid #000; font-weight: bold; }
-            td { border: 1px solid #000; padding: 5px; color: #000 !important; }
+            table { width: 100% !important; border-collapse: collapse; border: 1px solid #000; font-size: 11px; }
+            th { background-color: #eee !important; color: #000 !important; border: 1px solid #000; font-weight: bold; padding: 5px; }
+            td { border: 1px solid #000; padding: 5px; color: #000 !important; vertical-align: top; }
             /* Garante que o detalhamento (explode) apareça */
-            .detalhe-kit { font-size: 10px; font-style: italic; display: block; margin-top: 2px; color: #000 !important; }
+            .detalhe-kit { font-size: 10px; font-style: italic; display: block; margin-top: 2px; color: #333 !important; }
         }
     </style>
 </head>
@@ -418,14 +418,16 @@
             const corpo = document.getElementById('corpoRelatorio');
             corpo.innerHTML = '<div class="text-center p-10"><i class="fa-solid fa-spinner fa-spin text-3xl text-brand-500"></i><p>Buscando dados...</p></div>';
 
+            const snap = await db.collection("transacoes").limit(200).get();
+            let docs = []; snap.forEach(d => docs.push(d.data()));
+            docs.sort((a,b) => b.timestamp - a.timestamp); // Ordenação JS para evitar erro de índice
+
             let html = '<table class="w-full text-left font-sans text-xs md:text-sm" border="1" cellpadding="5" cellspacing="0">';
             
             // RELATORIO KITS EXPLODIDO
             if (tipo === 'kits') {
-                const snap = await db.collection("transacoes").where('tipo', '==', 'VENDA').orderBy('timestamp', 'desc').limit(200).get();
                 html += '<thead><tr><th>Data</th><th>Cliente</th><th>Kit Vendido</th><th>Conteúdo (Detalhe)</th></tr></thead><tbody>';
-                snap.forEach(doc => {
-                    const d = doc.data();
+                docs.filter(d => d.tipo === 'VENDA').forEach(d => {
                     const cliente = CLIENTES.find(c => c.id === d.cliente_id)?.nome || 'Cliente Removido';
                     const dataF = d.data.split('-').reverse().join('/');
                     let detalhes = "";
@@ -436,7 +438,6 @@
                             if(partes.length >= 2) {
                                 const nomeKit = partes[1].trim();
                                 if(RECEITAS_DB[nomeKit]) {
-                                    // EXPLOSÃO DO KIT AQUI
                                     const ing = Object.entries(RECEITAS_DB[nomeKit]).map(([k,v]) => `${v} ${k}`).join(', ');
                                     detalhes += `<span class='detalhe-kit'>↳ ${ing}</span>`;
                                 } else {
@@ -462,11 +463,9 @@
 
             // RELATORIO HISTORICO
             } else {
-                const snap = await db.collection("transacoes").orderBy('timestamp', 'desc').limit(200).get();
                 html += '<thead><tr><th>Data</th><th>Cliente</th><th>Tipo</th><th align="right">Valor</th></tr></thead><tbody>';
                 let totalVendas = 0; let totalPgto = 0;
-                snap.forEach(doc => {
-                    const d = doc.data();
+                docs.forEach(d => {
                     const cliente = CLIENTES.find(c => c.id === d.cliente_id)?.nome || 'Cliente Removido';
                     const dataF = d.data.split('-').reverse().join('/');
                     if(d.tipo !== 'CANCELADO') {
