@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lena Kits V10.3 - Relatórios Detalhados</title>
+    <title>Lena Kits V10.4 - Datas & Relatórios</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,16 +36,21 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 20px; }
 
-        /* Estilo para Impressão */
+        /* --- ESTILO DE IMPRESSÃO LIMPO --- */
         @media print {
+            body * { visibility: hidden; }
+            #modalRelatorio, #modalRelatorio * { visibility: visible; }
+            #modalRelatorio { 
+                position: absolute; left: 0; top: 0; width: 100%; height: 100%; 
+                background: white; padding: 0; margin: 0; z-index: 9999; overflow: visible;
+            }
             .no-print { display: none !important; }
-            body { background: white !important; overflow: visible !important; }
-            #modalRelatorio { position: static; inset: 0; background: white; padding: 0; z-index: 9999; }
-            #modalRelatorio .conteudo-print { box-shadow: none; border: none; max-width: 100%; width: 100%; max-height: none; overflow: visible; }
-            ::-webkit-scrollbar { display: none; }
-            table { width: 100% !important; border-collapse: collapse !important; font-size: 12px; }
-            th, td { border: 1px solid #ddd !important; padding: 8px !important; color: #000 !important; }
-            thead { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
+            .conteudo-print { box-shadow: none !important; border: none !important; max-width: 100% !important; }
+            table { width: 100% !important; border: 1px solid #000; }
+            th { background-color: #eee !important; color: #000 !important; border: 1px solid #000; font-weight: bold; }
+            td { border: 1px solid #000; padding: 5px; color: #000 !important; }
+            /* Garante que o detalhamento (explode) apareça */
+            .detalhe-kit { font-size: 10px; font-style: italic; display: block; margin-top: 2px; color: #000 !important; }
         }
     </style>
 </head>
@@ -128,8 +133,14 @@
                             <input type="text" id="novoTel" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-medium" placeholder="WhatsApp">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
-                            <select id="novoDia" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-medium border border-transparent focus:border-brand-200"></select>
-                            <select id="novoDia2" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-medium border border-transparent focus:border-brand-200"></select>
+                            <div>
+                                <label class="text-xs font-bold text-slate-400 ml-2">1º Vencimento</label>
+                                <input type="date" id="novoDia" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold text-slate-600">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-400 ml-2">2º Vencimento</label>
+                                <input type="date" id="novoDia2" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold text-slate-600">
+                            </div>
                         </div>
                         <button onclick="salvarNovoCliente()" class="w-full bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-lg mt-4 hover:bg-brand-800 transition">CADASTRAR</button>
                     </div>
@@ -145,7 +156,7 @@
                                 <i class="fa-solid fa-box-open text-2xl"></i>
                                 <div>
                                     <div class="text-[10px] uppercase opacity-70">Produção</div>
-                                    <div class="text-lg">Kits Detalhados (Receita)</div>
+                                    <div class="text-lg">Kits & Ingredientes (Explodido)</div>
                                 </div>
                             </button>
                             <div class="grid grid-cols-2 gap-4">
@@ -184,7 +195,7 @@
             <div class="bg-brand-800 p-6 flex justify-between items-center text-white no-print">
                 <h3 class="font-bold text-xl" id="tituloRelatorio">Relatório</h3>
                 <div class="flex gap-2">
-                    <button onclick="window.print()" class="bg-white text-brand-800 px-4 py-2 rounded-lg font-bold hover:bg-slate-100"><i class="fa-solid fa-print"></i> Imprimir / Salvar PDF</button>
+                    <button onclick="window.print()" class="bg-white text-brand-800 px-4 py-2 rounded-lg font-bold hover:bg-slate-100"><i class="fa-solid fa-print"></i> Imprimir</button>
                     <button onclick="fecharModal('modalRelatorio')" class="bg-white/20 w-10 h-10 rounded-full hover:bg-white/30">✕</button>
                 </div>
             </div>
@@ -260,7 +271,14 @@
     <div id="modalEditar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-8 relative animate-slide-up">
             <h3 class="font-bold text-xl mb-6">Editar Cliente</h3>
-            <div class="space-y-4"><input id="ed-nome" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none"><div class="grid grid-cols-2 gap-4"><select id="ed-setor" class="w-full p-4 border rounded-2xl bg-white font-bold"></select><input id="ed-tel" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold"></div><div class="grid grid-cols-2 gap-4"><select id="ed-dia" class="w-full p-4 border rounded-2xl bg-white font-bold"></select><select id="ed-dia2" class="w-full p-4 border rounded-2xl bg-white font-bold"></select></div></div>
+            <div class="space-y-4">
+                <input id="ed-nome" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none">
+                <div class="grid grid-cols-2 gap-4"><select id="ed-setor" class="w-full p-4 border rounded-2xl bg-white font-bold"></select><input id="ed-tel" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs text-slate-400">1º Vencimento</label><input type="date" id="ed-dia" class="w-full p-3 border rounded-xl font-bold text-slate-600"></div>
+                    <div><label class="text-xs text-slate-400">2º Vencimento</label><input type="date" id="ed-dia2" class="w-full p-3 border rounded-xl font-bold text-slate-600"></div>
+                </div>
+            </div>
             <div class="flex gap-3 mt-8"><button onclick="fecharModal('modalEditar')" class="flex-1 bg-slate-100 font-bold py-4 rounded-2xl">Voltar</button><button onclick="salvarEdicao()" class="flex-1 bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-lg">Salvar</button></div>
         </div>
     </div>
@@ -302,10 +320,6 @@
         async function fazerLogout() { await auth.signOut(); }
 
         async function inicializar() {
-            const dH = '<option value="">1º Dia</option>' + [...Array(31)].map((_, i) => `<option value="${i+1}">Dia ${i+1}</option>`).join('');
-            const dH2 = '<option value="">2º Dia</option>' + [...Array(31)].map((_, i) => `<option value="${i+1}">Dia ${i+1}</option>`).join('');
-            document.getElementById('novoDia').innerHTML = dH; document.getElementById('novoDia2').innerHTML = dH2;
-            document.getElementById('ed-dia').innerHTML = dH; document.getElementById('ed-dia2').innerHTML = dH2;
             document.getElementById('ed-setor').innerHTML = document.getElementById('novoSetor').innerHTML;
             const h = new Date(); document.getElementById('dataInicio').valueAsDate = new Date(h.getFullYear(), h.getMonth(), 1); document.getElementById('dataFim').valueAsDate = h;
             
@@ -328,7 +342,9 @@
         window.removerItemReceita = (n) => { delete ITENS_RECEITA_TEMP[n]; renderItensReceitaModal(); };
         window.salvarReceita = async () => { await db.collection("receitas_lena").doc(KIT_EDITANDO).set(ITENS_RECEITA_TEMP); fecharModal('modalReceita'); await carregarDados(); mostrarToast("Salvo!"); };
 
-        window.renderClientes = () => { const g = document.getElementById('gridClientes'), b = document.getElementById('buscaNome').value.toUpperCase(), s = document.getElementById('filtroSetor').value; g.innerHTML = ''; CLIENTES.filter(c => (!b || c.nome.includes(b)) && (!s || c.setor === s)).forEach(c => { const d = (c.saldo || 0) < -0.05; g.innerHTML += `<div class="bg-white rounded-[2rem] p-6 shadow-sm border border-sky-50 relative"><button onclick="abrirEditar('${c.id}')" class="absolute top-5 right-5 text-slate-200"><i class="fa-solid fa-pen"></i></button><div class="flex items-center gap-4 mb-5"><div class="w-14 h-14 rounded-2xl ${d?'bg-red-50 text-red-400':'bg-green-50 text-green-500'} flex items-center justify-center font-bold text-2xl shadow-inner">${c.nome.charAt(0)}</div><div class="overflow-hidden"><h3 class="font-bold text-slate-700 truncate">${c.nome}</h3><span class="text-[9px] bg-slate-50 text-slate-400 px-2 py-0.5 rounded font-black">${c.setor}</span></div></div><div class="bg-slate-50/50 p-4 rounded-2xl mb-4 border border-slate-50 flex justify-between items-end"><div><p class="text-[9px] text-slate-400 font-bold uppercase">Saldo</p><p class="text-xl font-black ${d?'text-red-400':'text-green-500'}">R$ ${Math.abs(c.saldo||0).toFixed(2)}</p></div><div class="text-right text-[10px] font-bold text-slate-400 uppercase">Dias: ${c.dia_pagamento||''}${c.dia_pagamento_2?'/ '+c.dia_pagamento_2:''}</div></div><div class="grid grid-cols-3 gap-2"><button onclick="abrirVenda('${c.id}')" class="bg-sky-50 text-brand-600 p-2 rounded-xl text-[10px] font-bold uppercase">Vender</button><button onclick="abrirPagamento('${c.id}')" class="bg-green-50 text-green-600 p-2 rounded-xl text-[10px] font-bold uppercase">Receber</button><button onclick="verExtrato('${c.id}')" class="bg-slate-50 text-slate-400 p-2 rounded-xl text-[10px] font-bold uppercase">Histórico</button></div></div>`; }); };
+        window.renderClientes = () => { const g = document.getElementById('gridClientes'), b = document.getElementById('buscaNome').value.toUpperCase(), s = document.getElementById('filtroSetor').value; g.innerHTML = ''; CLIENTES.filter(c => (!b || c.nome.includes(b)) && (!s || c.setor === s)).forEach(c => { const d = (c.saldo || 0) < -0.05; g.innerHTML += `<div class="bg-white rounded-[2rem] p-6 shadow-sm border border-sky-50 relative"><button onclick="abrirEditar('${c.id}')" class="absolute top-5 right-5 text-slate-200"><i class="fa-solid fa-pen"></i></button><div class="flex items-center gap-4 mb-5"><div class="w-14 h-14 rounded-2xl ${d?'bg-red-50 text-red-400':'bg-green-50 text-green-500'} flex items-center justify-center font-bold text-2xl shadow-inner">${c.nome.charAt(0)}</div><div class="overflow-hidden"><h3 class="font-bold text-slate-700 truncate">${c.nome}</h3><span class="text-[9px] bg-slate-50 text-slate-400 px-2 py-0.5 rounded font-black">${c.setor}</span></div></div><div class="bg-slate-50/50 p-4 rounded-2xl mb-4 border border-slate-50 flex justify-between items-end"><div><p class="text-[9px] text-slate-400 font-bold uppercase">Saldo</p><p class="text-xl font-black ${d?'text-red-400':'text-green-500'}">R$ ${Math.abs(c.saldo||0).toFixed(2)}</p></div><div class="text-right text-[10px] font-bold text-slate-400 uppercase">Venc: ${formatDataCurta(c.dia_pagamento)}</div></div><div class="grid grid-cols-3 gap-2"><button onclick="abrirVenda('${c.id}')" class="bg-sky-50 text-brand-600 p-2 rounded-xl text-[10px] font-bold uppercase">Vender</button><button onclick="abrirPagamento('${c.id}')" class="bg-green-50 text-green-600 p-2 rounded-xl text-[10px] font-bold uppercase">Receber</button><button onclick="verExtrato('${c.id}')" class="bg-slate-50 text-slate-400 p-2 rounded-xl text-[10px] font-bold uppercase">Histórico</button></div></div>`; }); };
+        function formatDataCurta(d) { return d ? d.split('-').reverse().slice(0,2).join('/') : '--'; }
+
         window.renderProdutos = () => { const l = document.getElementById('listaProdutos'), s = document.getElementById('mv-prod'); l.innerHTML = ''; s.innerHTML = '<option value="">Kit...</option>'; PRODUTOS.sort((a,b)=>a.preco-b.preco).forEach(p => { const rec = RECEITAS_DB[p.nome] || {}; const dS = Object.entries(rec).map(([n, q])=>`${q}x ${n}`).join(', ')||"Sem receita"; l.innerHTML += `<div class="bg-white p-5 rounded-2xl border shadow-sm flex justify-between items-start"><div><b class="text-brand-800">${p.nome}</b><p class="text-[10px] text-slate-400 mt-1">${dS}</p></div><button onclick="abrirReceita('${p.nome}')" class="text-brand-500 text-xs font-bold hover:underline">Editar Receita</button></div>`; s.innerHTML += `<option value="${p.preco}" data-nome="${p.nome}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`; }); };
         
         window.abrirVenda = (id) => { CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); document.getElementById('mv-nome').innerText = CLIENTE_ATUAL.nome; document.getElementById('mv-data').valueAsDate = new Date(); CARRINHO = []; ITENS_PERSONALIZADOS = []; mudarModoVenda('padrao'); atualizarCarrinho(); document.getElementById('modalVenda').classList.remove('hidden'); };
@@ -352,15 +368,29 @@
             div.innerHTML = ''; Object.entries(res).sort().forEach(([n, q], idx) => { div.innerHTML += `<div class="flex items-center gap-3 p-3 bg-white border rounded-xl"><input type="checkbox" checked class="check-custom" id="check-${idx}"><div class="flex-1 font-bold">${n}</div><input type="number" value="${q}" id="qtd-${idx}" class="w-16 p-1 bg-sky-50 rounded text-center font-bold outline-none"></div>`; });
         };
 
+        // --- SISTEMA DE DATAS COMPLETAS ---
         window.renderCobranca = (tipo) => {
             const lista = document.getElementById('listaCobranca'); lista.innerHTML = ''; let total = 0;
-            const filtrados = CLIENTES.filter(c => c.saldo < -0.01 && obterStatusVenc(c.dia_pagamento, c.dia_pagamento_2, c.ultima_venda) === tipo);
+            const filtrados = CLIENTES.filter(c => c.saldo < -0.01 && obterStatusDataCompleta(c.dia_pagamento, c.dia_pagamento_2) === tipo);
             if(filtrados.length===0) lista.innerHTML = '<p class="p-10 text-center opacity-40 font-bold">Tudo em dia! ✨</p>';
-            filtrados.forEach(c => { total += Math.abs(c.saldo); let dS = `Dia ${c.dia_pagamento}${c.dia_pagamento_2?' e Dia '+c.dia_pagamento_2:''}`; lista.innerHTML += `<div class="p-5 flex justify-between items-center hover:bg-slate-50 border-b border-slate-100 last:border-0 transition"><div><div class="font-bold text-slate-700 text-lg">${c.nome}</div><div class="text-xs text-slate-400 font-bold">Cobrança: ${dS}</div></div><div class="flex items-center gap-4"><div class="font-black text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${Math.abs(c.saldo).toFixed(2)}</div><a href="${linkZ(c, tipo)}" target="_blank" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md"><i class="fa-brands fa-whatsapp"></i></a></div></div>`; });
+            filtrados.forEach(c => { total += Math.abs(c.saldo); let dS = formatDatasCob(c); lista.innerHTML += `<div class="p-5 flex justify-between items-center hover:bg-slate-50 border-b border-slate-100 last:border-0 transition"><div><div class="font-bold text-slate-700 text-lg">${c.nome}</div><div class="text-xs text-slate-400 font-bold">Vencimento: ${dS}</div></div><div class="flex items-center gap-4"><div class="font-black text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${Math.abs(c.saldo).toFixed(2)}</div><a href="${linkZ(c, tipo)}" target="_blank" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md"><i class="fa-brands fa-whatsapp"></i></a></div></div>`; });
             document.getElementById(`total-${tipo}`).innerText = `R$ ${total.toFixed(2)}`;
         };
-        function obterStatusVenc(d1, d2, ult) { const h = new Date(); h.setHours(0,0,0,0); const base = ult ? new Date(ult + 'T12:00:00') : new Date(); let vs = []; if(d1) vs.push(calcD(d1, base)); if(d2) vs.push(calcD(d2, base)); if(vs.length===0) return 'nada'; if(vs.some(v => v.getTime() === h.getTime())) return 'hoje'; if(new Date(Math.max(...vs.map(v=>v.getTime()))).getTime() < h.getTime()) return 'atrasados'; return 'avencer'; }
-        function calcD(dia, base) { let dP = parseInt(dia), a = base.getFullYear(), m = base.getMonth(); if(base.getDate()>dP) m++; if(m>11){m=0;a++;} return new Date(a, m, Math.min(dP, new Date(a,m+1,0).getDate())); }
+        function formatDatasCob(c) {
+            let s = [];
+            if(c.dia_pagamento) s.push(c.dia_pagamento.split('-').reverse().join('/'));
+            if(c.dia_pagamento_2) s.push(c.dia_pagamento_2.split('-').reverse().join('/'));
+            return s.join(' e ');
+        }
+        function obterStatusDataCompleta(d1, d2) { 
+            const hoje = new Date().toISOString().split('T')[0];
+            let datas = []; if(d1) datas.push(d1); if(d2) datas.push(d2);
+            if(datas.length === 0) return 'nada';
+            if(datas.includes(hoje)) return 'hoje';
+            // Se tem alguma data passada (menor que hoje) -> atrasado
+            if(datas.some(d => d < hoje)) return 'atrasados';
+            return 'avencer';
+        }
 
         window.salvarNovoCliente = async () => { const n = document.getElementById('novoNome').value.toUpperCase(); if(n) { await db.collection("clientes").add({ nome: n, setor: document.getElementById('novoSetor').value, telefone: document.getElementById('novoTel').value, dia_pagamento: document.getElementById('novoDia').value, dia_pagamento_2: document.getElementById('novoDia2').value, saldo: 0 }); document.getElementById('novoNome').value = ''; carregarDados(); mudarAba('clientes'); mostrarToast("Adicionado!"); } };
         window.abrirEditar = (id) => { const c = CLIENTES.find(x => x.id === id); CLIENTE_ATUAL = c; document.getElementById('ed-nome').value = c.nome; document.getElementById('ed-tel').value = c.telefone; document.getElementById('ed-setor').value = c.setor; document.getElementById('ed-dia').value = c.dia_pagamento; document.getElementById('ed-dia2').value = c.dia_pagamento_2 || ""; document.getElementById('modalEditar').classList.remove('hidden'); };
@@ -376,7 +406,7 @@
         function disparaConfete() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
         window.copiarLista = () => { const its = document.getElementById('ml-conteudo').children; let t = `*LISTA DE COMPRAS LENA*\n\n`; for(let i=0; i<its.length; i++){ if(document.getElementById(`check-${i}`).checked) t += `[ ] ${document.getElementById(`qtd-${i}`).value} - ${its[i].querySelector('div.flex-1').innerText}\n`; } navigator.clipboard.writeText(t); mostrarToast("Copiada!"); };
 
-        // RELATÓRIOS CORRIGIDOS
+        // --- RELATÓRIOS LIMPOS & EXPLODIDOS ---
         window.gerarRelatorio = async (tipo) => {
             document.getElementById('modalRelatorio').classList.remove('hidden');
             let titulo = '';
@@ -388,55 +418,52 @@
             const corpo = document.getElementById('corpoRelatorio');
             corpo.innerHTML = '<div class="text-center p-10"><i class="fa-solid fa-spinner fa-spin text-3xl text-brand-500"></i><p>Buscando dados...</p></div>';
 
-            let html = '<table class="w-full text-left border-collapse font-sans text-xs md:text-sm">';
+            let html = '<table class="w-full text-left font-sans text-xs md:text-sm" border="1" cellpadding="5" cellspacing="0">';
             
-            // RELATORIO KITS (COM DETALHAMENTO DE RECEITA)
+            // RELATORIO KITS EXPLODIDO
             if (tipo === 'kits') {
                 const snap = await db.collection("transacoes").where('tipo', '==', 'VENDA').orderBy('timestamp', 'desc').limit(200).get();
-                html += '<thead class="bg-slate-100 border-b-2 border-slate-200"><tr><th class="p-2">Data</th><th class="p-2">Cliente</th><th class="p-2">Kit / Pedido</th><th class="p-2">Ingredientes (Detalhe)</th></tr></thead><tbody>';
+                html += '<thead><tr><th>Data</th><th>Cliente</th><th>Kit Vendido</th><th>Conteúdo (Detalhe)</th></tr></thead><tbody>';
                 snap.forEach(doc => {
                     const d = doc.data();
                     const cliente = CLIENTES.find(c => c.id === d.cliente_id)?.nome || 'Cliente Removido';
                     const dataF = d.data.split('-').reverse().join('/');
                     let detalhes = "";
                     
-                    // Lógica para expandir a receita
                     if(d.descricao) {
                         d.descricao.split(', ').forEach(item => {
                             const partes = item.split('x ');
                             if(partes.length >= 2) {
                                 const nomeKit = partes[1].trim();
                                 if(RECEITAS_DB[nomeKit]) {
-                                    const ing = Object.entries(RECEITAS_DB[nomeKit]).map(([k,v]) => `${v}x ${k}`).join(', ');
-                                    detalhes += `<div class='mb-1'><b>${nomeKit}:</b> <span class='text-slate-500'>${ing}</span></div>`;
+                                    // EXPLOSÃO DO KIT AQUI
+                                    const ing = Object.entries(RECEITAS_DB[nomeKit]).map(([k,v]) => `${v} ${k}`).join(', ');
+                                    detalhes += `<span class='detalhe-kit'>↳ ${ing}</span>`;
                                 } else {
-                                    detalhes += `<div class='mb-1'>${nomeKit} <span class='text-slate-400 italic'>(Sem receita)</span></div>`;
+                                    detalhes += `<span class='detalhe-kit text-slate-400'>↳ (Sem receita cadastrada)</span>`;
                                 }
                             }
                         });
                     }
-                    html += `<tr class="border-b hover:bg-slate-50"><td class="p-2 whitespace-nowrap text-slate-500">${dataF}</td><td class="p-2 font-bold text-brand-800">${cliente}</td><td class="p-2 text-slate-700">${d.descricao}</td><td class="p-2 text-[10px]">${detalhes}</td></tr>`;
+                    html += `<tr><td>${dataF}</td><td>${cliente}</td><td>${d.descricao}</td><td>${detalhes}</td></tr>`;
                 });
 
-            // RELATORIO COBRANCA (A RECEBER - FUTURO)
+            // RELATORIO COBRANCA (DATAS EXATAS)
             } else if (tipo === 'cobranca') {
-                html += '<thead class="bg-slate-100 border-b-2 border-slate-200"><tr><th class="p-2">Cliente</th><th class="p-2 text-right">Total Devido</th><th class="p-2">Próximo Vencimento</th><th class="p-2">2º Vencimento</th></tr></thead><tbody>';
+                html += '<thead><tr><th>Cliente</th><th align="right">Total Devido</th><th>Vencimento 1</th><th>Vencimento 2</th></tr></thead><tbody>';
                 let totalGeral = 0;
                 CLIENTES.filter(c => c.saldo < -0.05).forEach(c => {
                     totalGeral += Math.abs(c.saldo);
-                    // Calcula próximas datas baseadas no dia do cliente
-                    const hoje = new Date();
-                    let v1 = c.dia_pagamento ? calcD(c.dia_pagamento, hoje).toLocaleDateString('pt-BR') : '-';
-                    let v2 = c.dia_pagamento_2 ? calcD(c.dia_pagamento_2, hoje).toLocaleDateString('pt-BR') : '-';
-                    
-                    html += `<tr class="border-b hover:bg-slate-50"><td class="p-2 font-bold text-slate-700">${c.nome}</td><td class="p-2 text-right font-black text-red-500">R$ ${Math.abs(c.saldo).toFixed(2)}</td><td class="p-2 text-brand-600 font-bold">${v1}</td><td class="p-2 text-slate-500">${v2}</td></tr>`;
+                    let v1 = c.dia_pagamento ? c.dia_pagamento.split('-').reverse().join('/') : '-';
+                    let v2 = c.dia_pagamento_2 ? c.dia_pagamento_2.split('-').reverse().join('/') : '-';
+                    html += `<tr><td>${c.nome}</td><td align="right" style="color:red">R$ ${Math.abs(c.saldo).toFixed(2)}</td><td>${v1}</td><td>${v2}</td></tr>`;
                 });
-                html += `<tr class="bg-slate-100 font-bold text-lg"><td class="p-3 text-right">TOTAL A RECEBER:</td><td class="p-3 text-right text-red-600">R$ ${totalGeral.toFixed(2)}</td><td colspan="2"></td></tr>`;
+                html += `<tr><td align="right"><b>TOTAL:</b></td><td align="right"><b>R$ ${totalGeral.toFixed(2)}</b></td><td colspan="2"></td></tr>`;
 
-            // RELATORIO FINANCEIRO (HISTORICO - PASSADO)
+            // RELATORIO HISTORICO
             } else {
                 const snap = await db.collection("transacoes").orderBy('timestamp', 'desc').limit(200).get();
-                html += '<thead class="bg-slate-100 border-b-2 border-slate-200"><tr><th class="p-2">Data</th><th class="p-2">Cliente</th><th class="p-2">Tipo</th><th class="p-2 text-right">Valor</th></tr></thead><tbody>';
+                html += '<thead><tr><th>Data</th><th>Cliente</th><th>Tipo</th><th align="right">Valor</th></tr></thead><tbody>';
                 let totalVendas = 0; let totalPgto = 0;
                 snap.forEach(doc => {
                     const d = doc.data();
@@ -444,15 +471,14 @@
                     const dataF = d.data.split('-').reverse().join('/');
                     if(d.tipo !== 'CANCELADO') {
                         if(d.tipo === 'VENDA') totalVendas += d.valor; else totalPgto += d.valor;
-                        html += `<tr class="border-b hover:bg-slate-50"><td class="p-2 whitespace-nowrap text-slate-500">${dataF}</td><td class="p-2 font-bold text-slate-700">${cliente}</td><td class="p-2"><span class="${d.tipo==='VENDA' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'} px-2 py-1 rounded text-[10px] font-bold uppercase">${d.tipo}</span></td><td class="p-2 text-right font-bold ${d.tipo==='VENDA' ? 'text-red-400' : 'text-green-500'}">R$ ${d.valor.toFixed(2)}</td></tr>`;
+                        html += `<tr><td>${dataF}</td><td>${cliente}</td><td>${d.tipo}</td><td align="right">R$ ${d.valor.toFixed(2)}</td></tr>`;
                     }
                 });
-                html += `<tr class="bg-slate-100 font-bold"><td colspan="3" class="p-2 text-right">Total Vendas:</td><td class="p-2 text-right text-red-600">R$ ${totalVendas.toFixed(2)}</td></tr>`;
-                html += `<tr class="bg-slate-100 font-bold"><td colspan="3" class="p-2 text-right">Total Recebido:</td><td class="p-2 text-right text-green-600">R$ ${totalPgto.toFixed(2)}</td></tr>`;
+                html += `<tr><td colspan="3" align="right"><b>Total Vendas:</b></td><td align="right">R$ ${totalVendas.toFixed(2)}</td></tr>`;
+                html += `<tr><td colspan="3" align="right"><b>Total Recebido:</b></td><td align="right">R$ ${totalPgto.toFixed(2)}</td></tr>`;
             }
             
             html += '</tbody></table>';
-            html += '<div class="mt-8 text-center text-[10px] text-slate-400 no-print">Pressione Imprimir para salvar como PDF</div>';
             corpo.innerHTML = html;
         };
     </script>
