@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lena Kits V9 - Oficial</title>
+    <title>Lena Kits V10 - Oficial</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,23 +42,19 @@
     <div id="tela-login" class="fixed inset-0 z-[100] bg-sky-50 flex items-center justify-center p-4">
         <div class="bg-white p-10 rounded-[3rem] shadow-2xl max-w-sm w-full text-center space-y-6 border-4 border-white">
             <div class="w-20 h-20 bg-brand-100 text-brand-600 rounded-3xl flex items-center justify-center mx-auto text-4xl"><i class="fa-solid fa-shield-halved"></i></div>
-            <div>
-                <h1 class="text-3xl font-display font-bold text-brand-800 tracking-tight">Lena<span class="text-brand-orange">Kits</span></h1>
-                <p class="text-slate-400 font-medium mt-2 text-sm uppercase tracking-widest">Acesso Restrito</p>
-            </div>
+            <h1 class="text-3xl font-display font-bold text-brand-800 tracking-tight">Lena<span class="text-brand-orange">Kits</span></h1>
             <button onclick="fazerLoginGoogle()" class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-100 hover:border-brand-500 p-4 rounded-2xl font-bold transition-all shadow-sm">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="20"> Entrar com Google
             </button>
-            <div id="erro-login" class="text-red-500 text-xs font-bold hidden">E-mail não autorizado! 🚫</div>
+            <div id="erro-login" class="text-red-500 text-xs font-bold hidden">Acesso negado! 🚫</div>
         </div>
     </div>
 
     <div id="sistema-protegido" class="flex w-full hide">
         <aside class="w-72 bg-white/95 border-r border-sky-100 hidden md:flex flex-col z-20 shadow-xl">
             <div class="p-8 text-center">
-                <div class="inline-flex items-center justify-center w-12 h-12 bg-sky-100 text-brand-600 rounded-2xl mb-3 text-xl"><i class="fa-solid fa-bottle-droplet"></i></div>
                 <h1 class="text-2xl font-display font-bold text-brand-800">Lena<span class="text-brand-orange">Kits</span></h1>
-                <button onclick="fazerLogout()" class="text-[10px] text-red-400 font-bold mt-2 uppercase tracking-tighter hover:underline">Sair do Sistema</button>
+                <button onclick="fazerLogout()" class="text-[10px] text-red-400 font-bold mt-2 uppercase hover:underline">Sair</button>
             </div>
             <nav class="flex-1 px-6 space-y-3">
                 <button onclick="mudarAba('clientes')" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-slate-500 hover:bg-sky-50 transition-all font-bold" id="btn-clientes"><i class="fa-solid fa-users w-5"></i> Clientes</button>
@@ -71,18 +67,18 @@
 
         <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
             <header class="bg-white/90 p-4 flex justify-between items-center md:hidden z-10 shadow-sm">
-                <h1 class="font-display font-bold text-brand-600 text-xl tracking-tight">LenaKits</h1>
+                <h1 class="font-display font-bold text-brand-600 text-xl">LenaKits</h1>
                 <button onclick="document.querySelector('aside').classList.toggle('hidden');" class="text-brand-500 p-2 text-xl bg-sky-50 rounded-lg"><i class="fa-solid fa-bars"></i></button>
             </header>
 
             <div class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
                 <section id="tab-clientes" class="animate-fade-in space-y-6">
-                    <div class="flex flex-col md:flex-row gap-4 glass p-3 rounded-3xl shadow-sm">
+                    <div class="glass p-3 rounded-3xl shadow-sm flex flex-col md:flex-row gap-4">
                         <div class="flex-1 relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-5 top-4 text-brand-200"></i>
                             <input type="text" id="buscaNome" onkeyup="renderClientes()" placeholder="Buscar cliente..." class="w-full pl-12 pr-4 py-3 bg-transparent rounded-2xl outline-none font-bold text-slate-600">
                         </div>
-                        <select id="filtroSetor" onchange="renderClientes()" class="px-6 py-3 bg-sky-50 rounded-2xl outline-none text-brand-600 font-bold">
+                        <select id="filtroSetor" onchange="renderClientes()" class="px-6 py-3 bg-sky-50 rounded-2xl text-brand-600 font-bold outline-none">
                             <option value="">Todos os Setores</option><option value="ROTA1">Rota 1</option><option value="ROTA2">Rota 2</option><option value="CENTRO">Centro</option><option value="RUA">Rua</option>
                         </select>
                     </div>
@@ -92,9 +88,9 @@
                 <section id="tab-cobranca" class="hide animate-fade-in space-y-8">
                     <h2 class="text-3xl font-display font-bold text-brand-800 flex items-center gap-2"><i class="fa-solid fa-file-invoice-dollar text-brand-orange"></i> Financeiro</h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                        <div onclick="renderCobranca('hoje')" class="cursor-pointer bg-white p-6 rounded-3xl shadow-lg border border-blue-100 hover:-translate-y-1 transition-all"><div class="text-blue-400 font-bold text-xs uppercase mb-1">Vence Hoje</div><div class="text-3xl font-bold text-slate-700" id="total-hoje">R$ 0,00</div></div>
-                        <div onclick="renderCobranca('avencer')" class="cursor-pointer bg-white p-6 rounded-3xl shadow-lg border border-green-100 hover:-translate-y-1 transition-all"><div class="text-green-500 font-bold text-xs uppercase mb-1">No Prazo</div><div class="text-3xl font-bold text-slate-700" id="total-avencer">R$ 0,00</div></div>
-                        <div onclick="renderCobranca('atrasados')" class="cursor-pointer bg-white p-6 rounded-3xl shadow-lg border border-red-100 hover:-translate-y-1 transition-all"><div class="text-red-400 font-bold text-xs uppercase mb-1">Em Atraso</div><div class="text-3xl font-bold text-slate-700" id="total-atrasados">R$ 0,00</div></div>
+                        <div onclick="renderCobranca('hoje')" class="cursor-pointer bg-white p-6 rounded-3xl shadow-lg border border-blue-100 hover:-translate-y-1 transition-all"><div class="text-blue-400 font-bold text-xs mb-1">Vence Hoje</div><div class="text-3xl font-bold text-slate-700" id="total-hoje">R$ 0,00</div></div>
+                        <div onclick="renderCobranca('avencer')" class="cursor-pointer bg-white p-6 rounded-3xl shadow-lg border border-green-100 hover:-translate-y-1 transition-all"><div class="text-green-500 font-bold text-xs mb-1">No Prazo</div><div class="text-3xl font-bold text-slate-700" id="total-avencer">R$ 0,00</div></div>
+                        <div onclick="renderCobranca('atrasados')" class="cursor-pointer bg-white p-6 rounded-3xl shadow-lg border border-red-100 hover:-translate-y-1 transition-all"><div class="text-red-400 font-bold text-xs mb-1">Em Atraso</div><div class="text-3xl font-bold text-slate-700" id="total-atrasados">R$ 0,00</div></div>
                     </div>
                     <div id="listaCobranca" class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden pb-10"></div>
                 </section>
@@ -113,8 +109,7 @@
                                 <select id="novoDia" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-medium border border-transparent focus:border-brand-200"></select>
                                 <select id="novoDia2" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-medium border border-transparent focus:border-brand-200"></select>
                             </div>
-                            <p class="text-xs text-slate-400 text-center italic">Você pode definir 1 ou 2 datas de cobrança.</p>
-                            <button onclick="salvarNovoCliente()" class="w-full bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-lg mt-4 hover:bg-brand-800 transition">CADASTRAR CLIENTE</button>
+                            <button onclick="salvarNovoCliente()" class="w-full bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-lg mt-4 hover:bg-brand-800 transition">CADASTRAR</button>
                         </div>
                     </div>
                 </section>
@@ -123,80 +118,72 @@
                     <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-sky-100 relative overflow-hidden">
                         <div class="absolute top-0 right-0 bg-brand-orange w-32 h-32 rounded-full blur-3xl opacity-20"></div>
                         <h2 class="text-2xl font-bold text-brand-800 mb-2"><i class="fa-solid fa-basket-shopping"></i> Lista de Compras</h2>
-                        <p class="text-slate-500 mb-6">Escolha o período das vendas para gerar a lista do mercado.</p>
-                        <div class="flex flex-col md:flex-row gap-4 items-end bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                            <div class="flex-1 w-full"><label class="text-xs font-bold text-slate-400 uppercase ml-2 mb-1 block">Início</label><input type="date" id="dataInicio" class="w-full p-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 outline-none"></div>
-                            <div class="flex-1 w-full"><label class="text-xs font-bold text-slate-400 uppercase ml-2 mb-1 block">Fim</label><input type="date" id="dataFim" class="w-full p-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 outline-none"></div>
-                            <button onclick="gerarListaCompras()" class="w-full md:w-auto bg-brand-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-800 transition shadow-lg flex items-center justify-center gap-2"><i class="fa-solid fa-list-check"></i> Gerar</button>
+                        <div class="flex flex-col md:flex-row gap-4 items-end bg-slate-50 p-4 rounded-2xl border border-slate-100 mt-4">
+                            <div class="flex-1 w-full"><label class="text-xs font-bold text-slate-400 block mb-1 uppercase">Início</label><input type="date" id="dataInicio" class="w-full p-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 outline-none"></div>
+                            <div class="flex-1 w-full"><label class="text-xs font-bold text-slate-400 block mb-1 uppercase">Fim</label><input type="date" id="dataFim" class="w-full p-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 outline-none"></div>
+                            <button onclick="gerarListaCompras()" class="w-full md:w-auto bg-brand-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-800 transition shadow-lg flex items-center justify-center gap-2"><i class="fa-solid fa-list-check"></i> Gerar Lista</button>
                         </div>
                     </div>
                     <div class="max-w-4xl mx-auto space-y-6">
-                        <div class="flex justify-between items-center"><h3 class="font-bold text-slate-600 text-lg">Produtos & Kits</h3><button onclick="carregarKitsIniciais()" class="text-xs text-brand-500 font-bold hover:underline">Recarregar Padrão</button></div>
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-sky-100">
-                            <div class="flex gap-4"><input type="text" id="prodNome" class="flex-1 p-3 bg-slate-50 rounded-xl outline-none font-bold" placeholder="Nome do Kit"><input type="number" id="prodPreco" class="w-24 p-3 bg-slate-50 rounded-xl outline-none font-bold text-center" placeholder="R$"><button onclick="addProduto()" class="bg-brand-orange text-white w-12 rounded-xl font-bold text-xl">+</button></div>
-                            <input type="text" id="prodDesc" class="w-full mt-2 p-3 bg-slate-50 rounded-xl outline-none text-sm" placeholder="Ingredientes (Ex: 6 Chamyto, 1 Neston)">
-                        </div>
-                        <ul id="listaProdutos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></ul>
+                        <div class="flex justify-between items-center"><h3 class="font-bold text-slate-600 text-lg">Kits Cadastrados</h3><button onclick="carregarKitsIniciais()" class="text-xs text-brand-500 font-bold hover:underline">Resetar Padrão</button></div>
+                        <div id="listaProdutos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
                 </section>
 
                 <section id="tab-config" class="hide animate-fade-in">
-                    <div class="max-w-2xl mx-auto bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4 text-center">
-                        <h3 class="font-bold text-slate-700 mb-6"><i class="fa-brands fa-whatsapp text-green-500 text-xl"></i> Configurações de WhatsApp</h3>
-                        <input id="cfgPix" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" placeholder="Sua Chave PIX">
-                        <textarea id="msgHoje" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" rows="2" placeholder="Mensagem para quem vence HOJE"></textarea>
-                        <textarea id="msgAtrasado" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" rows="2" placeholder="Mensagem para quem está ATRASADO"></textarea>
-                        <button onclick="salvarConfig()" class="w-full bg-brand-800 text-white py-4 rounded-2xl font-bold hover:bg-brand-900 shadow-lg">SALVAR AJUSTES</button>
+                    <div class="max-w-2xl mx-auto bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4">
+                        <h3 class="font-bold text-slate-700 mb-6 text-center">Configurações de WhatsApp</h3>
+                        <input id="cfgPix" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" placeholder="Chave PIX">
+                        <textarea id="msgHoje" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" rows="2" placeholder="Mensagem Hoje"></textarea>
+                        <textarea id="msgAtrasado" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" rows="2" placeholder="Mensagem Atrasado"></textarea>
+                        <button onclick="salvarConfig()" class="w-full bg-brand-800 text-white py-4 rounded-2xl font-bold hover:bg-brand-900 shadow-lg">Salvar</button>
                     </div>
                 </section>
             </div>
         </main>
     </div>
 
-    <div id="modalLista" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl p-0 flex flex-col max-h-[85vh]">
-            <div class="bg-brand-600 p-6 rounded-t-[2rem] flex justify-between items-center text-white shadow-lg z-10"><div><h3 class="font-bold text-xl"><i class="fa-solid fa-cart-shopping"></i> Lista de Compras</h3><p class="text-xs opacity-80 font-bold" id="ml-data">Período</p></div><button onclick="fecharModal('modalLista')" class="bg-white/20 w-8 h-8 rounded-full">✕</button></div>
-            <div class="p-6 overflow-y-auto flex-1 bg-slate-50 space-y-4"><div id="ml-conteudo" class="space-y-2"></div></div>
-            <div class="p-6 bg-white border-t border-slate-100"><button onclick="copiarLista()" class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg flex justify-center items-center gap-2"><i class="fa-brands fa-whatsapp"></i> Copiar Selecionados</button></div>
+    <div id="modalReceita" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[110] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-8 animate-slide-up">
+            <h3 class="font-bold text-xl mb-2" id="mr-titulo">Editar Itens</h3>
+            <p class="text-xs text-slate-400 mb-6 font-medium uppercase tracking-widest">Receita do Kit</p>
+            <div id="mr-itens" class="space-y-3 max-h-60 overflow-y-auto mb-6 p-2 bg-slate-50 rounded-xl"></div>
+            <div class="flex gap-2 mb-6">
+                <select id="mr-add-nome" class="flex-1 p-2 border-2 border-slate-100 rounded-lg text-sm font-bold"></select>
+                <input id="mr-add-qtd" type="number" value="1" class="w-16 p-2 border-2 border-slate-100 rounded-lg text-center font-bold">
+                <button onclick="addItemReceita()" class="bg-brand-500 text-white w-10 h-10 rounded-lg font-bold">+</button>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="fecharModal('modalReceita')" class="flex-1 bg-slate-100 py-3 rounded-xl font-bold text-slate-500">Cancelar</button>
+                <button onclick="salvarReceita()" class="flex-1 bg-brand-600 text-white py-3 rounded-xl font-bold shadow-lg">Salvar Receita</button>
+            </div>
         </div>
     </div>
 
     <div id="modalVenda" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
-            <div class="bg-brand-600 p-6 flex justify-between items-center text-white">
-                <div><h3 class="font-bold text-xl">Nova Venda</h3><p class="text-xs opacity-90" id="mv-nome">Cliente</p></div>
-                <button onclick="fecharModal('modalVenda')" class="bg-white/20 w-8 h-8 rounded-full">✕</button>
-            </div>
-            <div class="flex border-b border-slate-100">
-                <button onclick="mudarModoVenda('padrao')" id="btn-modo-padrao" class="flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-sky-50">Kits Prontos</button>
-                <button onclick="mudarModoVenda('personalizado')" id="btn-modo-personalizado" class="flex-1 py-3 text-sm font-bold text-slate-400 border-b-2 border-transparent">Montar Kit</button>
-            </div>
+            <div class="bg-brand-600 p-6 flex justify-between items-center text-white"><div><h3 class="font-bold text-xl">Nova Venda</h3><p class="text-xs opacity-90" id="mv-nome"></p></div><button onclick="fecharModal('modalVenda')" class="bg-white/20 w-8 h-8 rounded-full">✕</button></div>
+            <div class="flex border-b border-slate-100"><button onclick="mudarModoVenda('padrao')" id="btn-modo-padrao" class="flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-sky-50">Kits Prontos</button><button onclick="mudarModoVenda('personalizado')" id="btn-modo-personalizado" class="flex-1 py-3 text-sm font-bold text-slate-400">Montar Kit</button></div>
             <div class="p-6 space-y-4 overflow-y-auto flex-1">
                 <input type="date" id="mv-data" class="w-full p-3 bg-sky-50 rounded-xl text-brand-700 outline-none font-bold text-center">
                 <div id="modo-padrao" class="space-y-2">
                     <div class="flex gap-2">
                         <select id="mv-prod" onchange="atualizarDescKit()" class="flex-1 border-2 border-slate-100 p-3 rounded-xl font-bold text-sm"></select>
                         <input id="mv-qtd" type="number" value="1" class="w-16 border-2 border-slate-100 p-3 rounded-xl text-center font-bold">
-                        <button onclick="addCarrinho()" class="bg-brand-orange text-white w-12 rounded-xl font-bold text-xl shadow-md">+</button>
+                        <button onclick="addCarrinho()" class="bg-brand-orange text-white w-12 rounded-xl font-bold text-xl">+</button>
                     </div>
-                    <div id="mv-desc-kit" class="text-xs text-slate-400 italic hidden"></div>
                 </div>
                 <div id="modo-personalizado" class="space-y-3 hidden">
                     <div class="flex gap-2">
-                        <select id="mv-pers-item" class="flex-1 border-2 border-slate-100 p-3 rounded-xl font-bold text-sm"><option value="">Item...</option></select>
+                        <select id="mv-pers-item" class="flex-1 border-2 border-slate-100 p-3 rounded-xl font-bold text-sm"></select>
                         <input id="mv-pers-qtd" type="number" value="1" class="w-16 border-2 border-slate-100 p-3 rounded-xl text-center font-bold">
-                        <button onclick="addPersonalizado()" class="bg-brand-500 text-white w-12 rounded-xl font-bold text-xl shadow-md">+</button>
+                        <button onclick="addPersonalizado()" class="bg-brand-500 text-white w-12 rounded-xl font-bold text-xl">+</button>
                     </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Preço Combinado (R$):</label>
-                        <input id="mv-pers-preco" type="number" class="w-full p-2 rounded-lg font-bold text-lg text-brand-800 outline-none border border-slate-200" placeholder="0,00">
-                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100"><label class="text-[10px] font-bold text-slate-400 uppercase">Preço (R$):</label><input id="mv-pers-preco" type="number" class="w-full p-2 rounded-lg font-bold text-lg text-brand-800 outline-none border border-slate-200"></div>
                 </div>
                 <div id="mv-lista" class="bg-slate-50 p-4 rounded-2xl h-40 overflow-y-auto space-y-2 border border-slate-100"></div>
-                <div class="flex justify-between font-bold text-2xl text-slate-700 pt-2 border-t border-slate-200">
-                    <span class="text-xs text-slate-400 self-center uppercase tracking-widest font-black">Total</span> <span id="mv-total">R$ 0,00</span>
-                </div>
-                <button onclick="finalizarVenda()" class="w-full bg-brand-600 text-white py-4 rounded-2xl font-bold shadow-xl">CONFIRMAR VENDA</button>
+                <div class="flex justify-between font-bold text-2xl text-slate-700 pt-2 border-t border-slate-200"><span class="text-xs text-slate-400 self-center uppercase font-black">Total</span> <span id="mv-total">R$ 0,00</span></div>
+                <button onclick="finalizarVenda()" class="w-full bg-brand-600 text-white py-4 rounded-2xl font-bold shadow-xl">CONFIRMAR</button>
             </div>
         </div>
     </div>
@@ -205,46 +192,37 @@
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl p-8 text-center relative animate-slide-up">
             <button onclick="fecharModal('modalPgto')" class="absolute top-5 right-6 text-slate-300">✕</button>
             <div class="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl"><i class="fa-solid fa-hand-holding-dollar"></i></div>
-            <h3 class="font-bold text-xl text-slate-800">Receber de</h3>
-            <p class="text-sm text-slate-400 mb-6" id="mp-nome">...</p>
-            <input type="date" id="mp-data" class="w-full mb-4 p-3 bg-slate-50 rounded-2xl text-center font-bold">
-            <div class="relative mb-8">
-                <span class="absolute left-6 top-4 text-green-300 font-bold text-2xl">R$</span>
-                <input type="number" id="mp-valor" class="w-full pl-10 pr-4 py-4 bg-green-50 rounded-3xl text-4xl font-bold text-green-600 outline-none text-center" placeholder="0,00">
-            </div>
-            <button onclick="confirmarPgto()" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold shadow-xl">CONFIRMAR RECEBIMENTO</button>
+            <h3 class="font-bold text-xl text-slate-800" id="mp-nome"></h3><input type="date" id="mp-data" class="w-full my-4 p-3 bg-slate-50 rounded-2xl text-center font-bold">
+            <div class="relative mb-8"><span class="absolute left-6 top-4 text-green-300 font-bold text-2xl">R$</span><input type="number" id="mp-valor" class="w-full pl-10 pr-4 py-4 bg-green-50 rounded-3xl text-4xl font-bold text-green-600 outline-none text-center" placeholder="0,00"></div>
+            <button onclick="confirmarPgto()" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold shadow-xl">CONFIRMAR</button>
         </div>
     </div>
 
     <div id="modalExtrato" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="bg-white p-6 border-b border-slate-100 flex justify-between items-center">
-                <div><h3 class="font-bold text-xl">Histórico</h3><p class="text-xs font-bold text-brand-400 uppercase" id="ex-nome">Cliente</p></div>
-                <button onclick="fecharModal('modalExtrato')" class="w-8 h-8 rounded-full bg-slate-50">✕</button>
-            </div>
-            <div class="p-0 overflow-y-auto flex-1 bg-slate-50">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-100 text-slate-400 text-[10px] uppercase font-bold sticky top-0"><tr><th class="p-4">Data</th><th class="p-4">Movimentação</th><th class="p-4 text-right">Valor</th><th class="p-4"></th></tr></thead>
-                    <tbody id="ex-lista" class="text-sm divide-y divide-slate-100 bg-white"></tbody>
-                </table>
-            </div>
-            <div class="p-5 bg-white border-t border-slate-100 flex justify-between items-center"><span class="text-slate-400 text-xs font-bold uppercase">Dívida Atual</span><span id="ex-saldo-final" class="font-bold text-2xl text-slate-800">R$ 0,00</span></div>
+            <div class="bg-white p-6 border-b border-slate-100 flex justify-between items-center"><div><h3 class="font-bold text-xl">Histórico</h3><p class="text-xs font-bold text-brand-400 uppercase" id="ex-nome"></p></div><button onclick="fecharModal('modalExtrato')" class="w-8 h-8 rounded-full bg-slate-50">✕</button></div>
+            <div class="p-0 overflow-y-auto flex-1 bg-slate-50"><table class="w-full text-left border-collapse"><thead class="bg-slate-100 text-slate-400 text-[10px] uppercase font-bold sticky top-0"><tr><th class="p-4">Data</th><th class="p-4">Movimentação</th><th class="p-4 text-right">Valor</th><th class="p-4"></th></tr></thead><tbody id="ex-lista" class="text-sm divide-y divide-slate-100 bg-white"></tbody></table></div>
+            <div class="p-5 bg-white border-t border-slate-100 flex justify-between items-center"><span class="text-slate-400 text-xs font-bold uppercase">Saldo</span><span id="ex-saldo-final" class="font-bold text-2xl text-slate-800">R$ 0,00</span></div>
+        </div>
+    </div>
+
+    <div id="modalLista" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl p-0 flex flex-col max-h-[85vh]">
+            <div class="bg-brand-600 p-6 rounded-t-[2rem] flex justify-between items-center text-white shadow-lg z-10"><div><h3 class="font-bold text-xl">Compras</h3><p class="text-xs font-bold opacity-80" id="ml-data"></p></div><button onclick="fecharModal('modalLista')" class="bg-white/20 w-8 h-8 rounded-full">✕</button></div>
+            <div class="p-6 overflow-y-auto flex-1 bg-slate-50 space-y-4"><div id="ml-conteudo" class="space-y-2 font-bold"></div></div>
+            <div class="p-6 bg-white border-t border-slate-100"><button onclick="copiarLista()" class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg flex justify-center items-center gap-2">COPIAR WHATSAPP</button></div>
         </div>
     </div>
 
     <div id="modalEditar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-8 relative animate-slide-up">
             <h3 class="font-bold text-xl mb-6">Editar Cliente</h3>
-            <div class="space-y-4">
-                <input id="ed-nome" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none">
-                <div class="grid grid-cols-2 gap-4"><select id="ed-setor" class="w-full p-4 border rounded-2xl bg-white"></select><input id="ed-tel" class="w-full p-4 bg-slate-50 rounded-2xl outline-none"></div>
-                <div class="grid grid-cols-2 gap-4"><select id="ed-dia" class="w-full p-4 border rounded-2xl bg-white"></select><select id="ed-dia2" class="w-full p-4 border rounded-2xl bg-white"></select></div>
-            </div>
+            <div class="space-y-4"><input id="ed-nome" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none"><div class="grid grid-cols-2 gap-4"><select id="ed-setor" class="w-full p-4 border rounded-2xl bg-white font-bold"></select><input id="ed-tel" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold"></div><div class="grid grid-cols-2 gap-4"><select id="ed-dia" class="w-full p-4 border rounded-2xl bg-white font-bold"></select><select id="ed-dia2" class="w-full p-4 border rounded-2xl bg-white font-bold"></select></div></div>
             <div class="flex gap-3 mt-8"><button onclick="fecharModal('modalEditar')" class="flex-1 bg-slate-100 font-bold py-4 rounded-2xl">Voltar</button><button onclick="salvarEdicao()" class="flex-1 bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-lg">Salvar</button></div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all z-[110] font-bold flex items-center gap-3"><i class="fa-solid fa-circle-check text-green-400 text-xl"></i> <span id="toast-msg">Sucesso!</span></div>
+    <div id="toast" class="fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all z-[110] font-bold"><span id="toast-msg">Sucesso!</span></div>
 
     <script>
         // CONFIG FIREBASE (LENA-BE4E0)
@@ -255,32 +233,19 @@
         const provider = new firebase.auth.GoogleAuthProvider();
 
         const EMAILS_AUTORIZADOS = ["gabi.souza09.gs@gmail.com", "mar.junior.silva@gmail.com"];
+        let CLIENTES = [], PRODUTOS = [], RECEITAS_DB = {}, CARRINHO = [], CLIENTE_ATUAL = null, CONFIG = {};
+        let MODO_VENDA = 'padrao'; let ITENS_PERSONALIZADOS = []; let ITENS_RECEITA_TEMP = {}; let KIT_EDITANDO = null;
 
-        let CLIENTES = [], PRODUTOS = [], CARRINHO = [], CLIENTE_ATUAL = null, CONFIG = {};
-        let MODO_VENDA = 'padrao'; let ITENS_PERSONALIZADOS = [];
+        const INGREDIENTES_BASE = ["Chamyto", "Neston", "Chambinho", "Danette", "Nescauzinho", "Cereal", "Grego", "Yakult", "Bolacha", "Iogurte Morango", "Iogurte Vitamina", "Chandelle", "Bono"];
 
-        // RECEITAS
-        const RECEITAS = {
-            "KIT R$ 60,00": { "Chamyto": 6 },
-            "KIT R$ 88,00": { "Bandeja Neston": 1, "Chambinho": 2, "Bandeja Morango": 1, "Nescauzinho": 3, "Chamyto": 1, "Chamyto Cereal": 2, "Chandelle/Danette": 4 },
-            "KIT R$ 95,00": { "Chambinho": 2, "Bandeja Vitamina": 1, "Bandeja Morango": 1, "Bandeja Neston": 1, "Chandelle/Danette": 4, "Nescauzinho": 4, "Cereal (Nescau/Snow)": 2, "Grego": 1, "Garrafinha": 1 },
-            "KIT R$ 100,00": { "Yakult (Unidade)": 36 },
-            "KIT R$ 110,00": { "Yakult Light (Unidade)": 36 },
-            "KIT R$ 115,00": { "Chambinho": 1, "Chamyto": 1, "Chandelle/Danette": 4, "Chandelle Chantilly": 4, "Bandeja Morango": 1, "Bandeja Vitamina": 2, "Bandeja Neston": 1, "Nescauzinho": 2, "Garrafinha": 2, "Bolacha Bono": 4 },
-            "KIT R$ 150,00": { "Chamyto": 2, "Bandeja Morango": 2, "Grego": 4, "Garrafinha": 2, "Chandelle/Danette": 4, "Chambinho": 1, "Chamyto Cereal": 6, "Bandeja Vitamina": 1, "Bandeja Neston": 1 }
-        };
-
-        const LISTA_INGREDIENTES = new Set(); 
-        Object.values(RECEITAS).forEach(rec => Object.keys(rec).forEach(ing => LISTA_INGREDIENTES.add(ing)));
-
-        // CONTROLE DE LOGIN
+        // CONTROLE LOGIN
         auth.onAuthStateChanged(user => {
             if (user && EMAILS_AUTORIZADOS.includes(user.email)) {
                 document.getElementById('tela-login').classList.add('hide');
                 document.getElementById('sistema-protegido').classList.remove('hide');
-                inicializarSistema();
+                inicializar();
             } else {
-                if(user) { auth.signOut(); document.getElementById('erro-login').classList.remove('hide'); }
+                if(user) auth.signOut();
                 document.getElementById('tela-login').classList.remove('hide');
                 document.getElementById('sistema-protegido').classList.add('hide');
             }
@@ -289,50 +254,57 @@
         async function fazerLoginGoogle() { try { await auth.signInWithPopup(provider); } catch(e){ alert("Erro login"); } }
         async function fazerLogout() { await auth.signOut(); }
 
-        async function inicializarSistema() {
-            const diasHtml = '<option value="">1º Dia</option>' + [...Array(31)].map((_, i) => `<option value="${i+1}">Dia ${i+1}</option>`).join('');
-            const diasHtml2 = '<option value="">2º Dia (Opcional)</option>' + [...Array(31)].map((_, i) => `<option value="${i+1}">Dia ${i+1}</option>`).join('');
-            document.getElementById('novoDia').innerHTML = diasHtml; document.getElementById('novoDia2').innerHTML = diasHtml2;
-            document.getElementById('ed-dia').innerHTML = diasHtml; document.getElementById('ed-dia2').innerHTML = diasHtml2;
+        async function inicializar() {
+            const dHtml = '<option value="">1º Dia</option>' + [...Array(31)].map((_, i) => `<option value="${i+1}">Dia ${i+1}</option>`).join('');
+            const dHtml2 = '<option value="">2º Dia</option>' + [...Array(31)].map((_, i) => `<option value="${i+1}">Dia ${i+1}</option>`).join('');
+            document.getElementById('novoDia').innerHTML = dHtml; document.getElementById('novoDia2').innerHTML = dHtml2;
+            document.getElementById('ed-dia').innerHTML = dHtml; document.getElementById('ed-dia2').innerHTML = dHtml2;
             document.getElementById('ed-setor').innerHTML = document.getElementById('novoSetor').innerHTML;
-            const hoje = new Date(); document.getElementById('dataInicio').valueAsDate = new Date(hoje.getFullYear(), hoje.getMonth(), 1); document.getElementById('dataFim').valueAsDate = hoje;
-            const selPers = document.getElementById('mv-pers-item'); Array.from(LISTA_INGREDIENTES).sort().forEach(item => { selPers.innerHTML += `<option value="${item}">${item}</option>`; });
+            const h = new Date(); document.getElementById('dataInicio').valueAsDate = new Date(h.getFullYear(), h.getMonth(), 1); document.getElementById('dataFim').valueAsDate = h;
+            
+            const selPers = document.getElementById('mv-pers-item');
+            const selRec = document.getElementById('mr-add-nome');
+            INGREDIENTES_BASE.sort().forEach(i => {
+                selPers.innerHTML += `<option value="${i}">${i}</option>`;
+                selRec.innerHTML += `<option value="${i}">${i}</option>`;
+            });
+
             await carregarDados();
         }
 
         async function carregarDados() {
-            const snapC = await db.collection("clientes").get(); CLIENTES = []; snapC.forEach(d => CLIENTES.push({id: d.id, ...d.data()})); CLIENTES.sort((a,b) => a.nome.localeCompare(b.nome));
+            const snapC = await db.collection("clientes").get(); CLIENTES = []; snapC.forEach(d => CLIENTES.push({id: d.id, ...d.data()})); CLIENTES.sort((a,b)=>a.nome.localeCompare(b.nome));
             const snapP = await db.collection("produtos_lena").get(); PRODUTOS = []; snapP.forEach(d => PRODUTOS.push({id: d.id, ...d.data()}));
+            const snapR = await db.collection("receitas_lena").get(); RECEITAS_DB = {}; snapR.forEach(d => RECEITAS_DB[d.id] = d.data());
             try { const snapCfg = await db.collection("config_lena").doc("templates").get(); if(snapCfg.exists) CONFIG = snapCfg.data(); document.getElementById('cfgPix').value = CONFIG.pix||""; document.getElementById('msgHoje').value = CONFIG.hoje||""; document.getElementById('msgAtrasado').value = CONFIG.atrasado||""; } catch(e){}
             renderClientes(); renderProdutos();
         }
 
-        // COBRANÇA
-        function obterStatusVenc(dia1, dia2, ultVenda) {
-            const hoje = new Date(); hoje.setHours(0,0,0,0);
-            const dataBase = ultVenda ? new Date(ultVenda + 'T12:00:00') : new Date();
-            let vencs = [];
-            if(dia1) vencs.push(calcD(dia1, dataBase)); if(dia2) vencs.push(calcD(dia2, dataBase));
-            if(vencs.length===0) return 'nada';
-            if(vencs.some(v => v.getTime() === hoje.getTime())) return 'hoje';
-            if(new Date(Math.max(...vencs.map(v=>v.getTime()))).getTime() < hoje.getTime()) return 'atrasados';
-            return 'avencer';
-        }
-        function calcD(dia, base) { let dP = parseInt(dia), a = base.getFullYear(), m = base.getMonth(); if(base.getDate()>dP) m++; if(m>11){m=0;a++;} return new Date(a, m, Math.min(dP, new Date(a,m+1,0).getDate())); }
-
-        window.renderCobranca = (tipo) => {
-            const lista = document.getElementById('listaCobranca'); lista.innerHTML = ''; let total = 0;
-            const filtrados = CLIENTES.filter(c => c.saldo < -0.01 && obterStatusVenc(c.dia_pagamento, c.dia_pagamento_2, c.ultima_venda) === tipo);
-            if(filtrados.length===0) lista.innerHTML = '<p class="p-10 text-center opacity-40 font-bold">Tudo limpo! ✨</p>';
-            filtrados.forEach(c => {
-                total += Math.abs(c.saldo);
-                let datas = `Dia ${c.dia_pagamento}${c.dia_pagamento_2?' e '+c.dia_pagamento_2:''}`;
-                lista.innerHTML += `<div class="p-5 flex justify-between items-center hover:bg-slate-50 border-b border-slate-100 last:border-0 transition"><div><div class="font-bold text-slate-700 text-lg">${c.nome}</div><div class="text-xs text-slate-400 font-bold">${datas}</div></div><div class="flex items-center gap-4"><div class="font-black text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${Math.abs(c.saldo).toFixed(2)}</div><a href="${linkZ(c, tipo)}" target="_blank" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md"><i class="fa-brands fa-whatsapp"></i></a></div></div>`;
-            });
-            document.getElementById(`total-${tipo}`).innerText = `R$ ${total.toFixed(2)}`;
+        // --- GESTÃO DE RECEITAS ---
+        window.abrirReceita = (nomeKit) => {
+            KIT_EDITANDO = nomeKit;
+            ITENS_RECEITA_TEMP = JSON.parse(JSON.stringify(RECEITAS_DB[nomeKit] || {}));
+            document.getElementById('mr-titulo').innerText = nomeKit;
+            renderItensReceitaModal();
+            document.getElementById('modalReceita').classList.remove('hidden');
         };
 
-        // VENDA
+        function renderItensReceitaModal() {
+            const div = document.getElementById('mr-itens'); div.innerHTML = '';
+            Object.entries(ITENS_RECEITA_TEMP).forEach(([nome, qtd]) => {
+                div.innerHTML += `<div class="flex justify-between items-center bg-white p-2 rounded-lg text-sm border"><span>${nome}</span><div class="flex items-center gap-3"><b>${qtd}</b><button onclick="removerItemReceita('${nome}')" class="text-red-300">✕</button></div></div>`;
+            });
+        }
+
+        window.addItemReceita = () => { const n = document.getElementById('mr-add-nome').value; const q = parseInt(document.getElementById('mr-add-qtd').value); ITENS_RECEITA_TEMP[n] = (ITENS_RECEITA_TEMP[n] || 0) + q; renderItensReceitaModal(); };
+        window.removerItemReceita = (n) => { delete ITENS_RECEITA_TEMP[n]; renderItensReceitaModal(); };
+        window.salvarReceita = async () => { await db.collection("receitas_lena").doc(KIT_EDITANDO).set(ITENS_RECEITA_TEMP); fecharModal('modalReceita'); await carregarDados(); mostrarToast("Receita Salva!"); };
+
+        // --- FUNÇÕES DE NEGÓCIO ---
+        window.renderClientes = () => { const g = document.getElementById('gridClientes'), b = document.getElementById('buscaNome').value.toUpperCase(), s = document.getElementById('filtroSetor').value; g.innerHTML = ''; CLIENTES.filter(c => (!b || c.nome.includes(b)) && (!s || c.setor === s)).forEach(c => { const d = (c.saldo || 0) < -0.05; g.innerHTML += `<div class="bg-white rounded-[2rem] p-6 shadow-sm border border-sky-50 relative"><button onclick="abrirEditar('${c.id}')" class="absolute top-5 right-5 text-slate-200"><i class="fa-solid fa-pen"></i></button><div class="flex items-center gap-4 mb-5"><div class="w-14 h-14 rounded-2xl ${d?'bg-red-50 text-red-400':'bg-green-50 text-green-500'} flex items-center justify-center font-bold text-2xl shadow-inner">${c.nome.charAt(0)}</div><div class="overflow-hidden"><h3 class="font-bold text-slate-700 truncate">${c.nome}</h3><span class="text-[9px] bg-slate-50 text-slate-400 px-2 py-0.5 rounded font-black">${c.setor}</span></div></div><div class="bg-slate-50/50 p-4 rounded-2xl mb-4 border border-slate-50 flex justify-between items-end"><div><p class="text-[9px] text-slate-400 font-bold uppercase">Saldo</p><p class="text-xl font-black ${d?'text-red-400':'text-green-500'}">R$ ${Math.abs(c.saldo||0).toFixed(2)}</p></div><div class="text-right text-[10px] font-bold text-slate-400 uppercase">Dias: ${c.dia_pagamento||''}${c.dia_pagamento_2?'/ '+c.dia_pagamento_2:''}</div></div><div class="grid grid-cols-3 gap-2"><button onclick="abrirVenda('${c.id}')" class="bg-sky-50 text-brand-600 p-2 rounded-xl text-[10px] font-bold">VENDER</button><button onclick="abrirPagamento('${c.id}')" class="bg-green-50 text-green-600 p-2 rounded-xl text-[10px] font-bold">RECEBER</button><button onclick="verExtrato('${c.id}')" class="bg-slate-50 text-slate-400 p-2 rounded-xl text-[10px] font-bold">HISTÓRICO</button></div></div>`; }); };
+        window.renderProdutos = () => { const l = document.getElementById('listaProdutos'), s = document.getElementById('mv-prod'); l.innerHTML = ''; s.innerHTML = '<option value="">Kit...</option>'; PRODUTOS.forEach(p => { const rec = RECEITAS_DB[p.nome] || {}; const dStr = Object.entries(rec).map(([n, q])=>`${q}x ${n}`).join(', ')||"Sem receita"; l.innerHTML += `<div class="bg-white p-5 rounded-2xl border shadow-sm flex justify-between items-start"><div><b class="text-brand-800">${p.nome}</b><p class="text-[10px] text-slate-400 mt-1">${dStr}</p></div><button onclick="abrirReceita('${p.nome}')" class="text-brand-500 text-xs font-bold hover:underline">Editar Receita</button></div>`; s.innerHTML += `<option value="${p.preco}" data-nome="${p.nome}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`; }); };
+        
+        window.abrirVenda = (id) => { CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); document.getElementById('mv-nome').innerText = CLIENTE_ATUAL.nome; document.getElementById('mv-data').valueAsDate = new Date(); CARRINHO = []; ITENS_PERSONALIZADOS = []; mudarModoVenda('padrao'); atualizarCarrinho(); document.getElementById('modalVenda').classList.remove('hidden'); };
         window.mudarModoVenda = (modo) => { MODO_VENDA = modo; document.getElementById('modo-padrao').classList.toggle('hidden', modo !== 'padrao'); document.getElementById('modo-personalizado').classList.toggle('hidden', modo !== 'personalizado'); document.getElementById('btn-modo-padrao').className = modo==='padrao'?'flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-sky-50':'flex-1 py-3 text-sm font-bold text-slate-400'; document.getElementById('btn-modo-personalizado').className = modo==='personalizado'?'flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-sky-50':'flex-1 py-3 text-sm font-bold text-slate-400'; };
         window.addCarrinho = () => { const sel = document.getElementById('mv-prod'), n = sel.options[sel.selectedIndex]?.getAttribute('data-nome'), p = parseFloat(sel.value), q = parseFloat(document.getElementById('mv-qtd').value); if(n) { CARRINHO.push({nome:n, qtd:q, total:p*q}); atualizarCarrinho(); } };
         window.addPersonalizado = () => { const it = document.getElementById('mv-pers-item').value, q = parseInt(document.getElementById('mv-pers-qtd').value); if(it && q>0) { ITENS_PERSONALIZADOS.push({nome:it, qtd:q}); atualizarListaPers(); } };
@@ -340,46 +312,44 @@
         document.getElementById('mv-pers-preco').addEventListener('input', atualizarListaPers);
         window.rmItem = (idx) => { if(CARRINHO[idx].nome==="Kit Personalizado"){ ITENS_PERSONALIZADOS = []; document.getElementById('mv-pers-preco').value=""; } CARRINHO.splice(idx,1); atualizarCarrinho(); };
         function atualizarCarrinho() { const div = document.getElementById('mv-lista'); let t = 0; div.innerHTML = ''; CARRINHO.forEach((i, idx) => { t += i.total; div.innerHTML += `<div class="flex justify-between items-center text-sm p-3 bg-white border rounded-xl mb-2"><div><span class="font-bold text-brand-600">${i.qtd}x</span> ${i.nome} <div class="text-[9px] text-slate-400">${i.descricaoExtra||''}</div></div><div class="font-bold text-slate-600">R$ ${i.total.toFixed(2)} <button onclick="rmItem(${idx})" class="ml-2 text-red-300">x</button></div></div>`; }); document.getElementById('mv-total').innerText = `R$ ${t.toFixed(2)}`; }
+        
         window.finalizarVenda = async () => { if(CARRINHO.length===0) return; const dat = document.getElementById('mv-data').value, tot = CARRINHO.reduce((a,b)=>a+b.total, 0), descs = CARRINHO.map(i => i.nome==="Kit Personalizado"?i.descricaoExtra:`${i.qtd}x ${i.nome}`); await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ saldo: (CLIENTE_ATUAL.saldo || 0) - tot, ultima_venda: dat }); await db.collection("transacoes").add({ cliente_id: CLIENTE_ATUAL.id, tipo: 'VENDA', valor: tot, descricao: descs.join(', '), data: dat, timestamp: new Date() }); fecharModal('modalVenda'); carregarDados(); mostrarToast("Venda OK!"); disparaConfete(); };
+        
+        window.verExtrato = async (id) => { CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); document.getElementById('ex-nome').innerText = CLIENTE_ATUAL.nome; document.getElementById('ex-saldo-final').innerText = `R$ ${Math.abs(CLIENTE_ATUAL.saldo).toFixed(2)}`; const tb = document.getElementById('ex-lista'); tb.innerHTML = 'Buscando...'; document.getElementById('modalExtrato').classList.remove('hidden'); const snap = await db.collection("transacoes").where("cliente_id", "==", id).get(); let list = []; snap.forEach(d => list.push({id: d.id, ...d.data()})); list.sort((a,b) => new Date(b.data+'T12:00:00') - new Date(a.data+'T12:00:00')); tb.innerHTML = ''; list.forEach(t => { const isV = t.tipo==='VENDA', isC = t.tipo==='CANCELADO'; tb.innerHTML += `<tr class="border-b border-slate-50"><td class="p-4 ${isC?'riscado':''}">${t.data.split('-').reverse().slice(0,2).join('/')}</td><td class="p-4 ${isC?'riscado':''}"><b>${isV?'🥛 Compra':'💰 PGTO'}</b><br><small>${t.descricao}</small></td><td class="p-4 text-right font-bold ${isC?'text-slate-200':(isV?'text-red-400':'text-green-500')}">${isV?'-':'+'} R$ ${t.valor.toFixed(2)}</td><td class="p-4">${!isC?`<button onclick="cancelarTransacao('${t.id}',${t.valor},'${t.tipo}')" class="text-slate-200 hover:text-red-400"><i class="fa-solid fa-ban"></i></button>`:''}</td></tr>`; }); };
+        window.cancelarTransacao = async (idT, val, tip) => { if(!confirm("Cancelar pedido e estornar valor?")) return; let nS = CLIENTE_ATUAL.saldo; if(tip==='VENDA') nS += val; else if(tip==='PAGAMENTO') nS -= val; await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ saldo: nS }); await db.collection("transacoes").doc(idT).update({ tipo: 'CANCELADO', valor: 0, descricao: '🚫 CANCELADO' }); fecharModal('modalExtrato'); carregarDados(); mostrarToast("Cancelado!"); };
 
-        // CANCELAR
-        window.cancelarTransacao = async (idT, val, tip) => {
-            if(!confirm("Estornar valor e cancelar pedido?")) return;
-            let nS = CLIENTE_ATUAL.saldo;
-            if(tip==='VENDA') nS += val; else if(tip==='PAGAMENTO') nS -= val;
-            await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ saldo: nS });
-            await db.collection("transacoes").doc(idT).update({ tipo: 'CANCELADO', valor: 0, descricao: '🚫 CANCELADO' });
-            fecharModal('modalExtrato'); carregarDados(); mostrarToast("Cancelado!");
-        };
-
-        // LISTA COMPRAS
         window.gerarListaCompras = async () => {
             const i = document.getElementById('dataInicio').value, f = document.getElementById('dataFim').value; if(!i || !f) return;
-            const div = document.getElementById('ml-conteudo'); div.innerHTML = 'Somando...'; document.getElementById('modalLista').classList.remove('hidden');
+            const div = document.getElementById('ml-conteudo'); div.innerHTML = 'Somando...'; document.getElementById('modalLista').classList.remove('hidden'); document.getElementById('ml-data').innerText = `${i} até ${f}`;
             const snap = await db.collection("transacoes").where("tipo", "==", "VENDA").get();
-            let res = {}; snap.forEach(doc => { const v = doc.data(); if(v.data >= i && v.data <= f && v.descricao) { v.descricao.split(', ').forEach(it => { const p = it.split('x '); if(p.length>=2){ const q = parseInt(p[0]), n = p[1].trim(); if(RECEITAS[n]){ for(const [ing, qr] of Object.entries(RECEITAS[n])) res[ing] = (res[ing]||0)+(qr*q); } else res[n] = (res[n]||0)+q; } }); } });
+            let res = {}; snap.forEach(doc => { const v = doc.data(); if(v.data >= i && v.data <= f && v.descricao) { v.descricao.split(', ').forEach(it => { const p = it.split('x '); if(p.length>=2){ const q = parseInt(p[0]), n = p[1].trim(); const rec = RECEITAS_DB[n]; if(rec){ for(const [ing, qr] of Object.entries(rec)) res[ing] = (res[ing]||0)+(qr*q); } else res[n] = (res[n]||0)+q; } }); } });
             div.innerHTML = ''; Object.entries(res).sort().forEach(([n, q], idx) => { div.innerHTML += `<div class="flex items-center gap-3 p-3 bg-white border rounded-xl"><input type="checkbox" checked class="check-custom" id="check-${idx}"><div class="flex-1 font-bold">${n}</div><input type="number" value="${q}" id="qtd-${idx}" class="w-16 p-1 bg-sky-50 rounded text-center font-bold outline-none"></div>`; });
         };
-        window.copiarLista = () => { const its = document.getElementById('ml-conteudo').children; let t = `*LISTA LENA*\n\n`; for(let i=0; i<its.length; i++){ if(document.getElementById(`check-${i}`).checked) t += `[ ] ${document.getElementById(`qtd-${i}`).value} - ${its[i].querySelector('div.flex-1').innerText}\n`; } navigator.clipboard.writeText(t); mostrarToast("Copiada!"); };
 
-        // AUXILIARES
-        window.renderClientes = () => { const g = document.getElementById('gridClientes'), b = document.getElementById('buscaNome').value.toUpperCase(), s = document.getElementById('filtroSetor').value; g.innerHTML = ''; CLIENTES.filter(c => (!b || c.nome.includes(b)) && (!s || c.setor === s)).forEach(c => { const d = (c.saldo || 0) < -0.05; g.innerHTML += `<div class="bg-white rounded-[2rem] p-6 shadow-sm border border-sky-50 relative"><button onclick="abrirEditar('${c.id}')" class="absolute top-5 right-5 text-slate-200"><i class="fa-solid fa-pen"></i></button><div class="flex items-center gap-4 mb-5"><div class="w-14 h-14 rounded-2xl ${d?'bg-red-50 text-red-400':'bg-green-50 text-green-500'} flex items-center justify-center font-bold text-2xl shadow-inner">${c.nome.charAt(0)}</div><div class="overflow-hidden"><h3 class="font-bold text-slate-700 truncate">${c.nome}</h3><span class="text-[9px] bg-slate-50 text-slate-400 px-2 py-0.5 rounded font-black">${c.setor}</span></div></div><div class="bg-slate-50/50 p-4 rounded-2xl mb-4 border border-slate-50 flex justify-between items-end"><div><p class="text-[9px] text-slate-400 font-bold uppercase">Saldo</p><p class="text-xl font-black ${d?'text-red-400':'text-green-500'}">R$ ${Math.abs(c.saldo||0).toFixed(2)}</p></div><div class="text-right text-[10px] font-bold text-slate-400 uppercase">Dias: ${c.dia_pagamento||''}${c.dia_pagamento_2?'/ '+c.dia_pagamento_2:''}</div></div><div class="grid grid-cols-3 gap-2"><button onclick="abrirVenda('${c.id}')" class="bg-sky-50 text-brand-600 p-2 rounded-xl text-[10px] font-bold">VENDER</button><button onclick="abrirPagamento('${c.id}')" class="bg-green-50 text-green-600 p-2 rounded-xl text-[10px] font-bold">RECEBER</button><button onclick="verExtrato('${c.id}')" class="bg-slate-50 text-slate-400 p-2 rounded-xl text-[10px] font-bold">HISTÓRICO</button></div></div>`; }); };
-        window.renderProdutos = () => { const l = document.getElementById('listaProdutos'), s = document.getElementById('mv-prod'); l.innerHTML = ''; s.innerHTML = '<option value="">Kit...</option>'; PRODUTOS.forEach(p => { l.innerHTML += `<li class="p-3 bg-white border rounded-xl flex justify-between"><b>${p.nome}</b> <span>R$ ${p.preco.toFixed(2)}</span></li>`; s.innerHTML += `<option value="${p.preco}" data-nome="${p.nome}" data-desc="${p.desc}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`; }); };
+        // FINANCEIRO E AUXILIARES
+        window.renderCobranca = (tipo) => {
+            const lista = document.getElementById('listaCobranca'); lista.innerHTML = ''; let total = 0;
+            const filtrados = CLIENTES.filter(c => c.saldo < -0.01 && obterStatusVenc(c.dia_pagamento, c.dia_pagamento_2, c.ultima_venda) === tipo);
+            if(filtrados.length===0) lista.innerHTML = '<p class="p-10 text-center opacity-40 font-bold font-display">Tudo em dia! ✨</p>';
+            filtrados.forEach(c => { total += Math.abs(c.saldo); let datas = `Dia ${c.dia_pagamento}${c.dia_pagamento_2?' e Dia '+c.dia_pagamento_2:''}`; lista.innerHTML += `<div class="p-5 flex justify-between items-center hover:bg-slate-50 border-b border-slate-100 last:border-0 transition"><div><div class="font-bold text-slate-700 text-lg">${c.nome}</div><div class="text-xs text-slate-400 font-bold">Cobrança: ${datas}</div></div><div class="flex items-center gap-4"><div class="font-black text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${Math.abs(c.saldo).toFixed(2)}</div><a href="${linkZ(c, tipo)}" target="_blank" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md"><i class="fa-brands fa-whatsapp"></i></a></div></div>`; });
+            document.getElementById(`total-${tipo}`).innerText = `R$ ${total.toFixed(2)}`;
+        };
+        function obterStatusVenc(d1, d2, ult) { const h = new Date(); h.setHours(0,0,0,0); const base = ult ? new Date(ult + 'T12:00:00') : new Date(); let vs = []; if(d1) vs.push(calcD(d1, base)); if(d2) vs.push(calcD(d2, base)); if(vs.length===0) return 'nada'; if(vs.some(v => v.getTime() === h.getTime())) return 'hoje'; if(new Date(Math.max(...vs.map(v=>v.getTime()))).getTime() < h.getTime()) return 'atrasados'; return 'avencer'; }
+        function calcD(dia, base) { let dP = parseInt(dia), a = base.getFullYear(), m = base.getMonth(); if(base.getDate()>dP) m++; if(m>11){m=0;a++;} return new Date(a, m, Math.min(dP, new Date(a,m+1,0).getDate())); }
+
         window.abrirEditar = (id) => { const c = CLIENTES.find(x => x.id === id); CLIENTE_ATUAL = c; document.getElementById('ed-nome').value = c.nome; document.getElementById('ed-tel').value = c.telefone; document.getElementById('ed-setor').value = c.setor; document.getElementById('ed-dia').value = c.dia_pagamento; document.getElementById('ed-dia2').value = c.dia_pagamento_2 || ""; document.getElementById('modalEditar').classList.remove('hidden'); };
         window.salvarEdicao = async () => { await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ nome: document.getElementById('ed-nome').value.toUpperCase(), setor: document.getElementById('ed-setor').value, telefone: document.getElementById('ed-tel').value, dia_pagamento: document.getElementById('ed-dia').value, dia_pagamento_2: document.getElementById('ed-dia2').value }); fecharModal('modalEditar'); carregarDados(); mostrarToast("Atualizado!"); };
         window.abrirPagamento = (id) => { CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); document.getElementById('mp-nome').innerText = CLIENTE_ATUAL.nome; document.getElementById('mp-data').valueAsDate = new Date(); document.getElementById('mp-valor').value = ''; document.getElementById('modalPgto').classList.remove('hidden'); };
         window.confirmarPgto = async () => { const v = parseFloat(document.getElementById('mp-valor').value); if(!v) return; await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ saldo: (CLIENTE_ATUAL.saldo || 0) + v }); await db.collection("transacoes").add({ cliente_id: CLIENTE_ATUAL.id, tipo: 'PAGAMENTO', valor: v, data: document.getElementById('mp-data').value, timestamp: new Date() }); fecharModal('modalPgto'); carregarDados(); mostrarToast("Recebido!"); };
-        window.verExtrato = async (id) => { CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); document.getElementById('ex-nome').innerText = CLIENTE_ATUAL.nome; document.getElementById('ex-saldo-final').innerText = `R$ ${Math.abs(CLIENTE_ATUAL.saldo).toFixed(2)}`; const tb = document.getElementById('ex-lista'); tb.innerHTML = 'Carregando...'; document.getElementById('modalExtrato').classList.remove('hidden'); const snap = await db.collection("transacoes").where("cliente_id", "==", id).get(); let list = []; snap.forEach(d => list.push({id: d.id, ...d.data()})); list.sort((a,b) => new Date(b.data+'T12:00:00') - new Date(a.data+'T12:00:00')); tb.innerHTML = ''; list.forEach(t => { const isV = t.tipo==='VENDA', isC = t.tipo==='CANCELADO'; tb.innerHTML += `<tr class="border-b border-slate-50"><td class="p-4 ${isC?'riscado':''}">${t.data.split('-').reverse().slice(0,2).join('/')}</td><td class="p-4 ${isC?'riscado':''}"><b>${isV?'🥛 Compra':'💰 PGTO'}</b><br><small>${t.descricao}</small></td><td class="p-4 text-right font-bold ${isC?'text-slate-200':(isV?'text-red-400':'text-green-500')}">${isV?'-':'+'} R$ ${t.valor.toFixed(2)}</td><td class="p-4">${!isC?`<button onclick="cancelarTransacao('${t.id}',${t.valor},'${t.tipo}')" class="text-slate-200 hover:text-red-400"><i class="fa-solid fa-ban"></i></button>`:''}</td></tr>`; }); };
         window.salvarNovoCliente = async () => { const n = document.getElementById('novoNome').value.toUpperCase(); if(n) { await db.collection("clientes").add({ nome: n, setor: document.getElementById('novoSetor').value, telefone: document.getElementById('novoTel').value, dia_pagamento: document.getElementById('novoDia').value, dia_pagamento_2: document.getElementById('novoDia2').value, saldo: 0 }); document.getElementById('novoNome').value = ''; carregarDados(); mudarAba('clientes'); mostrarToast("Adicionado!"); } };
-        window.addProduto = async () => { const n = document.getElementById('prodNome').value.toUpperCase(), p = parseFloat(document.getElementById('prodPreco').value), d = document.getElementById('prodDesc').value; if(n && p) { await db.collection("produtos_lena").add({nome:n, preco:p, desc:d}); carregarDados(); } };
         window.salvarConfig = async () => { await db.collection("config_lena").doc("templates").set({ pix: document.getElementById('cfgPix').value, hoje: document.getElementById('msgHoje').value, atrasado: document.getElementById('msgAtrasado').value }); mostrarToast("Salvo!"); };
-        function linkZ(c, t) { let m = CONFIG[t] || ""; m = m.replace(/{nome}/g, c.nome).replace(/{valor}/g, Math.abs(c.saldo).toFixed(2)).replace(/{pix}/g, CONFIG.pix); return `https://wa.me/55${c.telefone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`; }
         window.mudarAba = (aba) => { document.querySelectorAll('section').forEach(s => s.classList.add('hide')); document.getElementById(`tab-${aba}`).classList.remove('hide'); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('bg-sky-50', 'text-brand-600')); document.getElementById(`btn-${aba}`).classList.add('bg-sky-50', 'text-brand-600'); if(aba==='cobranca') { renderCobranca('hoje'); renderCobranca('avencer'); renderCobranca('atrasados'); } };
         window.fecharModal = (id) => document.getElementById(id).classList.add('hidden');
-        window.mostrarToast = (msg) => { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; t.classList.remove('translate-y-20', 'opacity-0'); setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000); };
+        window.mostrarToast = (m) => { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = m; t.classList.remove('translate-y-20', 'opacity-0'); setTimeout(()=>t.classList.add('translate-y-20','opacity-0'),3000); };
+        window.carregarKitsIniciais = async () => { if(!confirm("Resetar Kits Padrão?")) return; const kits = [{nome:"KIT R$ 60,00",preco:60},{nome:"KIT R$ 88,00",preco:88},{nome:"KIT R$ 95,00",preco:95},{nome:"KIT R$ 100,00",preco:100},{nome:"KIT R$ 110,00",preco:110},{nome:"KIT R$ 115,00",preco:115},{nome:"KIT R$ 150,00",preco:150}]; for(const k of kits) { if(!PRODUTOS.find(p=>p.nome===k.nome)) await db.collection("produtos_lena").add(k); } carregarDados(); };
+        function linkZ(c, t) { let m = CONFIG[t] || ""; m = m.replace(/{nome}/g, c.nome).replace(/{valor}/g, Math.abs(c.saldo).toFixed(2)).replace(/{pix}/g, CONFIG.pix); return `https://wa.me/55${c.telefone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`; }
         function disparaConfete() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
-        window.atualizarDescKit = () => { const s = document.getElementById('mv-prod'); const d = s.options[s.selectedIndex]?.getAttribute('data-desc'); const el = document.getElementById('mv-desc-kit'); if(d) { el.innerText = d; el.classList.remove('hidden'); } else el.classList.add('hidden'); };
-        window.carregarKitsIniciais = async () => { if(!confirm("Resetar Kits?")) return; for(const kit of KITS_CADASTRO) { if(!PRODUTOS.find(p=>p.nome===kit.nome)) await db.collection("produtos_lena").add(kit); } carregarDados(); };
+        window.copiarLista = () => { const its = document.getElementById('ml-conteudo').children; let t = `*LISTA DE COMPRAS LENA*\n\n`; for(let i=0; i<its.length; i++){ if(document.getElementById(`check-${i}`).checked) t += `[ ] ${document.getElementById(`qtd-${i}`).value} - ${its[i].querySelector('div.flex-1').innerText}\n`; } navigator.clipboard.writeText(t); mostrarToast("Lista Copiada!"); };
     </script>
 </body>
 </html>
