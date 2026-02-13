@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lena Kits V10.5 - Relatórios ON</title>
+    <title>Lena Kits V10.6 - Impressão Infinita</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,20 +36,51 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 20px; }
 
-        /* --- ESTILO DE IMPRESSÃO LIMPO --- */
+        /* --- ESTILO DE IMPRESSÃO CORRIGIDO (PAGINAÇÃO) --- */
         @media print {
-            body * { visibility: hidden; }
-            #modalRelatorio, #modalRelatorio * { visibility: visible; }
+            /* Esconde tudo que não é o modal */
+            body > *:not(#modalRelatorio) { display: none !important; }
+            
+            /* Configura o corpo para aceitar conteúdo longo */
+            html, body { height: auto !important; overflow: visible !important; background: white !important; }
+
+            /* Destrava o Modal */
             #modalRelatorio { 
-                position: absolute; left: 0; top: 0; width: 100%; height: 100%; 
-                background: white; padding: 0; margin: 0; z-index: 9999; overflow: visible;
+                display: block !important; 
+                position: static !important; /* Solta o modal da tela */
+                inset: auto !important;
+                width: 100% !important; 
+                height: auto !important; 
+                max-height: none !important; /* Remove limite de altura */
+                background: white !important; 
+                padding: 0 !important; 
+                margin: 0 !important; 
+                z-index: 9999; 
+                overflow: visible !important;
             }
+
+            /* Destrava o container interno */
+            .conteudo-print { 
+                box-shadow: none !important; 
+                border: none !important; 
+                max-width: 100% !important; 
+                width: 100% !important;
+                max-height: none !important; 
+                height: auto !important;
+                overflow: visible !important; 
+                display: block !important;
+            }
+
+            /* Esconde botões de fechar/imprimir na folha */
             .no-print { display: none !important; }
-            .conteudo-print { box-shadow: none !important; border: none !important; max-width: 100% !important; }
+
+            /* Configura a Tabela */
             table { width: 100% !important; border-collapse: collapse; border: 1px solid #000; font-size: 11px; }
+            thead { display: table-header-group; } /* Repete cabeçalho em nova página se precisar */
+            tr { page-break-inside: avoid; } /* Evita cortar cliente ao meio */
             th { background-color: #eee !important; color: #000 !important; border: 1px solid #000; font-weight: bold; padding: 5px; }
             td { border: 1px solid #000; padding: 5px; color: #000 !important; vertical-align: top; }
-            /* Garante que o detalhamento (explode) apareça */
+            
             .detalhe-kit { font-size: 10px; font-style: italic; display: block; margin-top: 2px; color: #333 !important; }
         }
     </style>
@@ -406,7 +437,7 @@
         function disparaConfete() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
         window.copiarLista = () => { const its = document.getElementById('ml-conteudo').children; let t = `*LISTA DE COMPRAS LENA*\n\n`; for(let i=0; i<its.length; i++){ if(document.getElementById(`check-${i}`).checked) t += `[ ] ${document.getElementById(`qtd-${i}`).value} - ${its[i].querySelector('div.flex-1').innerText}\n`; } navigator.clipboard.writeText(t); mostrarToast("Copiada!"); };
 
-        // --- RELATÓRIOS LIMPOS & EXPLODIDOS ---
+        // --- RELATÓRIOS LIMPOS & EXPLODIDOS (ORDENAÇÃO MANUAL) ---
         window.gerarRelatorio = async (tipo) => {
             document.getElementById('modalRelatorio').classList.remove('hidden');
             let titulo = '';
@@ -420,7 +451,7 @@
 
             const snap = await db.collection("transacoes").limit(200).get();
             let docs = []; snap.forEach(d => docs.push(d.data()));
-            docs.sort((a,b) => b.timestamp - a.timestamp); // Ordenação JS para evitar erro de índice
+            docs.sort((a,b) => b.timestamp - a.timestamp); // Ordenação JS
 
             let html = '<table class="w-full text-left font-sans text-xs md:text-sm" border="1" cellpadding="5" cellspacing="0">';
             
