@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lena Kits V10.1 - Nomes Restaurados</title>
+    <title>Lena Kits V10.2 - Relatórios</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,6 +35,15 @@
         .check-custom { accent-color: #0ea5e9; width: 20px; height: 20px; cursor: pointer; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 20px; }
+
+        /* Estilo para Impressão */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; overflow: visible !important; }
+            #modalRelatorio { position: static; inset: 0; background: white; padding: 0; z-index: 9999; }
+            #modalRelatorio .conteudo-print { box-shadow: none; border: none; max-width: 100%; width: 100%; max-height: none; overflow: visible; }
+            ::-webkit-scrollbar { display: none; }
+        }
     </style>
 </head>
 <body class="text-slate-800 h-screen flex overflow-hidden">
@@ -51,7 +60,7 @@
     </div>
 
     <div id="sistema-protegido" class="flex w-full hide">
-        <aside class="w-72 bg-white/95 border-r border-sky-100 hidden md:flex flex-col z-20 shadow-xl">
+        <aside class="w-72 bg-white/95 border-r border-sky-100 hidden md:flex flex-col z-20 shadow-xl no-print">
             <div class="p-8 text-center">
                 <h1 class="text-2xl font-display font-bold text-brand-800">Lena<span class="text-brand-orange">Kits</span></h1>
                 <button onclick="fazerLogout()" class="text-[10px] text-red-400 font-bold mt-2 uppercase hover:underline">Sair</button>
@@ -67,7 +76,7 @@
 
         <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
             <section id="tab-clientes" class="p-8 animate-fade-in space-y-6 overflow-y-auto h-full">
-                <div class="glass p-3 rounded-3xl shadow-sm flex flex-col md:flex-row gap-4">
+                <div class="glass p-3 rounded-3xl shadow-sm flex flex-col md:flex-row gap-4 no-print">
                     <div class="flex-1 relative">
                         <i class="fa-solid fa-magnifying-glass absolute left-5 top-4 text-brand-200"></i>
                         <input type="text" id="buscaNome" onkeyup="renderClientes()" placeholder="Buscar cliente..." class="w-full pl-12 pr-4 py-3 bg-transparent rounded-2xl outline-none font-bold text-slate-600">
@@ -81,7 +90,7 @@
 
             <section id="tab-cobranca" class="hide p-8 animate-fade-in space-y-8 overflow-y-auto h-full">
                 <h2 class="text-3xl font-display font-bold text-brand-800 flex items-center gap-2"><i class="fa-solid fa-file-invoice-dollar text-brand-orange"></i> Financeiro</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 no-print">
                     <div onclick="renderCobranca('hoje')" class="cursor-pointer bg-white p-6 rounded-3xl shadow-lg border border-blue-100 hover:-translate-y-1 transition-all"><div class="text-blue-400 font-bold text-xs mb-1">Vence Hoje</div><div class="text-3xl font-bold text-slate-700" id="total-hoje">R$ 0,00</div></div>
                     <div onclick="renderCobranca('avencer')" class="cursor-pointer bg-white p-6 rounded-3xl shadow-lg border border-green-100 hover:-translate-y-1 transition-all"><div class="text-green-500 font-bold text-xs mb-1">No Prazo</div><div class="text-3xl font-bold text-slate-700" id="total-avencer">R$ 0,00</div></div>
                     <div onclick="renderCobranca('atrasados')" class="cursor-pointer bg-white p-6 rounded-3xl shadow-lg border border-red-100 hover:-translate-y-1 transition-all"><div class="text-red-400 font-bold text-xs mb-1">Em Atraso</div><div class="text-3xl font-bold text-slate-700" id="total-atrasados">R$ 0,00</div></div>
@@ -125,18 +134,55 @@
             </section>
 
             <section id="tab-config" class="hide p-8 animate-fade-in overflow-y-auto h-full">
-                <div class="max-w-2xl mx-auto bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4">
-                    <h3 class="font-bold text-slate-700 mb-6 text-center">Configurações de WhatsApp</h3>
-                    <input id="cfgPix" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" placeholder="Chave PIX">
-                    <textarea id="msgHoje" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" rows="2" placeholder="Mensagem Hoje"></textarea>
-                    <textarea id="msgAtrasado" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" rows="2" placeholder="Mensagem Atrasado"></textarea>
-                    <button onclick="salvarConfig()" class="w-full bg-brand-800 text-white py-4 rounded-2xl font-bold hover:bg-brand-900 shadow-lg">Salvar</button>
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
+                        <h3 class="font-bold text-slate-700 mb-6 flex items-center gap-2 justify-center"><i class="fa-solid fa-print text-brand-500 text-2xl"></i> Relatórios para Impressão</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <button onclick="gerarRelatorio('kits')" class="p-6 bg-sky-50 text-brand-600 rounded-2xl font-bold hover:bg-sky-100 transition shadow-sm text-left flex items-center gap-3">
+                                <i class="fa-solid fa-box-open text-2xl"></i>
+                                <div>
+                                    <div class="text-[10px] uppercase opacity-70">Relatório</div>
+                                    <div class="text-lg">Kits & Detalhes</div>
+                                </div>
+                            </button>
+                            <button onclick="gerarRelatorio('financeiro')" class="p-6 bg-orange-50 text-brand-orange rounded-2xl font-bold hover:bg-orange-100 transition shadow-sm text-left flex items-center gap-3">
+                                <i class="fa-solid fa-money-bill-wave text-2xl"></i>
+                                <div>
+                                    <div class="text-[10px] uppercase opacity-70">Relatório</div>
+                                    <div class="text-lg">Vendas & Pgtos</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4">
+                        <h3 class="font-bold text-slate-700 mb-6 text-center">Configurações de WhatsApp</h3>
+                        <input id="cfgPix" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" placeholder="Chave PIX">
+                        <textarea id="msgHoje" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" rows="2" placeholder="Mensagem Hoje"></textarea>
+                        <textarea id="msgAtrasado" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-medium" rows="2" placeholder="Mensagem Atrasado"></textarea>
+                        <button onclick="salvarConfig()" class="w-full bg-brand-800 text-white py-4 rounded-2xl font-bold hover:bg-brand-900 shadow-lg">Salvar</button>
+                    </div>
                 </div>
             </section>
         </main>
     </div>
 
-    <div id="modalReceita" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[110] flex items-center justify-center p-4">
+    <div id="modalRelatorio" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[150] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] conteudo-print">
+            <div class="bg-brand-800 p-6 flex justify-between items-center text-white no-print">
+                <h3 class="font-bold text-xl" id="tituloRelatorio">Relatório</h3>
+                <div class="flex gap-2">
+                    <button onclick="window.print()" class="bg-white text-brand-800 px-4 py-2 rounded-lg font-bold hover:bg-slate-100"><i class="fa-solid fa-print"></i> Imprimir</button>
+                    <button onclick="fecharModal('modalRelatorio')" class="bg-white/20 w-10 h-10 rounded-full hover:bg-white/30">✕</button>
+                </div>
+            </div>
+            <div class="p-8 overflow-y-auto flex-1 bg-white" id="corpoRelatorio">
+                Carregando dados...
+            </div>
+        </div>
+    </div>
+
+    <div id="modalReceita" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[110] flex items-center justify-center p-4 no-print">
         <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-8 animate-slide-up">
             <h3 class="font-bold text-xl mb-2" id="mr-titulo">Editar Itens</h3>
             <p class="text-xs text-slate-400 mb-6 font-medium uppercase tracking-widest">Receita do Kit</p>
@@ -153,7 +199,7 @@
         </div>
     </div>
 
-    <div id="modalVenda" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div id="modalVenda" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
             <div class="bg-brand-600 p-6 flex justify-between items-center text-white"><div><h3 class="font-bold text-xl">Nova Venda</h3><p class="text-xs opacity-90" id="mv-nome"></p></div><button onclick="fecharModal('modalVenda')" class="bg-white/20 w-8 h-8 rounded-full">✕</button></div>
             <div class="flex border-b border-slate-100"><button onclick="mudarModoVenda('padrao')" id="btn-modo-padrao" class="flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-sky-50">Kits Prontos</button><button onclick="mudarModoVenda('personalizado')" id="btn-modo-personalizado" class="flex-1 py-3 text-sm font-bold text-slate-400">Montar Kit</button></div>
@@ -173,7 +219,7 @@
         </div>
     </div>
 
-    <div id="modalPgto" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div id="modalPgto" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl p-8 text-center relative animate-slide-up">
             <button onclick="fecharModal('modalPgto')" class="absolute top-5 right-6 text-slate-300">✕</button>
             <div class="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl"><i class="fa-solid fa-hand-holding-dollar"></i></div>
@@ -183,7 +229,7 @@
         </div>
     </div>
 
-    <div id="modalExtrato" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div id="modalExtrato" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="bg-white p-6 border-b border-slate-100 flex justify-between items-center"><div><h3 class="font-bold text-xl">Histórico</h3><p class="text-xs font-bold text-brand-400 uppercase" id="ex-nome"></p></div><button onclick="fecharModal('modalExtrato')" class="w-8 h-8 rounded-full bg-slate-50">✕</button></div>
             <div class="p-0 overflow-y-auto flex-1 bg-slate-50"><table class="w-full text-left border-collapse"><thead class="bg-slate-100 text-slate-400 text-[10px] uppercase font-bold sticky top-0"><tr><th class="p-4">Data</th><th class="p-4">Movimentação</th><th class="p-4 text-right">Valor</th><th class="p-4"></th></tr></thead><tbody id="ex-lista" class="text-sm divide-y divide-slate-100 bg-white"></tbody></table></div>
@@ -191,7 +237,7 @@
         </div>
     </div>
 
-    <div id="modalLista" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div id="modalLista" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl p-0 flex flex-col max-h-[85vh]">
             <div class="bg-brand-600 p-6 rounded-t-[2rem] flex justify-between items-center text-white shadow-lg z-10"><div><h3 class="font-bold text-xl">Compras</h3><p class="text-xs font-bold opacity-80" id="ml-data"></p></div><button onclick="fecharModal('modalLista')" class="bg-white/20 w-8 h-8 rounded-full">✕</button></div>
             <div class="p-6 overflow-y-auto flex-1 bg-slate-50 space-y-4"><div id="ml-conteudo" class="space-y-2 font-bold text-slate-700"></div></div>
@@ -199,7 +245,7 @@
         </div>
     </div>
 
-    <div id="modalEditar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div id="modalEditar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 no-print">
         <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-8 relative animate-slide-up">
             <h3 class="font-bold text-xl mb-6">Editar Cliente</h3>
             <div class="space-y-4"><input id="ed-nome" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none"><div class="grid grid-cols-2 gap-4"><select id="ed-setor" class="w-full p-4 border rounded-2xl bg-white font-bold"></select><input id="ed-tel" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold"></div><div class="grid grid-cols-2 gap-4"><select id="ed-dia" class="w-full p-4 border rounded-2xl bg-white font-bold"></select><select id="ed-dia2" class="w-full p-4 border rounded-2xl bg-white font-bold"></select></div></div>
@@ -323,6 +369,54 @@
         function linkZ(c, t) { let m = CONFIG[t] || ""; m = m.replace(/{nome}/g, c.nome).replace(/{valor}/g, Math.abs(c.saldo).toFixed(2)).replace(/{pix}/g, CONFIG.pix); return `https://wa.me/55${c.telefone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`; }
         function disparaConfete() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
         window.copiarLista = () => { const its = document.getElementById('ml-conteudo').children; let t = `*LISTA DE COMPRAS LENA*\n\n`; for(let i=0; i<its.length; i++){ if(document.getElementById(`check-${i}`).checked) t += `[ ] ${document.getElementById(`qtd-${i}`).value} - ${its[i].querySelector('div.flex-1').innerText}\n`; } navigator.clipboard.writeText(t); mostrarToast("Copiada!"); };
+
+        // --- NOVAS FUNÇÕES PARA RELATÓRIOS ---
+        window.gerarRelatorio = async (tipo) => {
+            document.getElementById('modalRelatorio').classList.remove('hidden');
+            document.getElementById('tituloRelatorio').innerText = tipo === 'kits' ? 'Relatório de Kits/Pedidos' : 'Relatório Financeiro';
+            const corpo = document.getElementById('corpoRelatorio');
+            corpo.innerHTML = '<div class="text-center p-10"><i class="fa-solid fa-spinner fa-spin text-3xl text-brand-500"></i><p>Buscando dados...</p></div>';
+            
+            // Busca últimas 200 transações
+            const snap = await db.collection("transacoes").orderBy('timestamp', 'desc').limit(200).get();
+            let html = '<table class="w-full text-left border-collapse font-sans">';
+            
+            if (tipo === 'kits') {
+                html += '<thead class="bg-slate-100 border-b-2 border-slate-200"><tr><th class="p-3">Data</th><th class="p-3">Cliente</th><th class="p-3">Detalhes do Pedido</th></tr></thead><tbody>';
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    if(d.tipo === 'VENDA') {
+                        const cliente = CLIENTES.find(c => c.id === d.cliente_id)?.nome || 'Cliente Removido';
+                        const dataF = d.data.split('-').reverse().join('/');
+                        html += `<tr class="border-b hover:bg-slate-50"><td class="p-3 text-sm font-bold text-slate-500 whitespace-nowrap">${dataF}</td><td class="p-3 font-bold text-brand-800">${cliente}</td><td class="p-3 text-slate-700 text-sm">${d.descricao}</td></tr>`;
+                    }
+                });
+            } else {
+                html += '<thead class="bg-slate-100 border-b-2 border-slate-200"><tr><th class="p-3">Data</th><th class="p-3">Cliente</th><th class="p-3">Tipo</th><th class="p-3 text-right">Valor</th></tr></thead><tbody>';
+                let totalVendas = 0;
+                let totalPgto = 0;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const cliente = CLIENTES.find(c => c.id === d.cliente_id)?.nome || 'Cliente Removido';
+                    const dataF = d.data.split('-').reverse().join('/');
+                    const isVenda = d.tipo === 'VENDA';
+                    const isCancelado = d.tipo === 'CANCELADO';
+                    if(!isCancelado){
+                        if(isVenda) totalVendas += d.valor; else totalPgto += d.valor;
+                    }
+                    
+                    if(!isCancelado) {
+                        html += `<tr class="border-b hover:bg-slate-50"><td class="p-3 text-sm font-bold text-slate-500 whitespace-nowrap">${dataF}</td><td class="p-3 font-bold text-slate-700">${cliente}</td><td class="p-3"><span class="${isVenda ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'} px-2 py-1 rounded text-xs font-bold uppercase">${isVenda ? 'Venda' : 'Pagamento'}</span></td><td class="p-3 text-right font-bold ${isVenda ? 'text-red-400' : 'text-green-500'}">R$ ${d.valor.toFixed(2)}</td></tr>`;
+                    }
+                });
+                html += `<tr class="bg-slate-100 font-bold"><td colspan="3" class="p-3 text-right">Total Vendas:</td><td class="p-3 text-right text-red-600">R$ ${totalVendas.toFixed(2)}</td></tr>`;
+                html += `<tr class="bg-slate-100 font-bold"><td colspan="3" class="p-3 text-right">Total Recebido:</td><td class="p-3 text-right text-green-600">R$ ${totalPgto.toFixed(2)}</td></tr>`;
+            }
+            
+            html += '</tbody></table>';
+            html += '<div class="mt-8 text-center text-xs text-slate-400">Relatório gerado em ' + new Date().toLocaleString('pt-BR') + '</div>';
+            corpo.innerHTML = html;
+        };
     </script>
 </body>
 </html>
