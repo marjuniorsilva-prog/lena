@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lena Kits V10.7 - Cadastro de Kits</title>
+    <title>Lena Kits V10.8 - Ingredientes Livres</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -196,11 +196,15 @@
             <h3 class="font-bold text-xl mb-2" id="mr-titulo">Editar Itens</h3>
             <p class="text-xs text-slate-400 mb-6 font-medium uppercase tracking-widest">Receita do Kit</p>
             <div id="mr-itens" class="space-y-3 max-h-60 overflow-y-auto mb-6 p-2 bg-slate-50 rounded-xl"></div>
+            
             <div class="flex gap-2 mb-6">
-                <select id="mr-add-nome" class="flex-1 p-2 border-2 border-slate-100 rounded-lg text-sm font-bold"></select>
+                <input list="lista-ingredientes" id="mr-add-nome" class="flex-1 p-2 border-2 border-slate-100 rounded-lg text-sm font-bold bg-white" placeholder="Digite ou selecione...">
+                <datalist id="lista-ingredientes"></datalist>
+                
                 <input id="mr-add-qtd" type="number" value="1" class="w-16 p-2 border-2 border-slate-100 rounded-lg text-center font-bold">
                 <button onclick="addItemReceita()" class="bg-brand-500 text-white w-10 h-10 rounded-lg font-bold">+</button>
             </div>
+            
             <div class="flex gap-3">
                 <button onclick="fecharModal('modalReceita')" class="flex-1 bg-slate-100 py-3 rounded-xl font-bold text-slate-500">Cancelar</button>
                 <button onclick="salvarReceita()" class="flex-1 bg-brand-600 text-white py-3 rounded-xl font-bold shadow-lg">Salvar Receita</button>
@@ -327,8 +331,18 @@
         async function inicializar() {
             document.getElementById('ed-setor').innerHTML = document.getElementById('novoSetor').innerHTML;
             const h = new Date(); document.getElementById('dataInicio').valueAsDate = new Date(h.getFullYear(), h.getMonth(), 1); document.getElementById('dataFim').valueAsDate = h;
-            const sP = document.getElementById('mv-pers-item'), sR = document.getElementById('mr-add-nome');
-            INGREDIENTES_BASE.sort().forEach(i => { sP.innerHTML += `<option value="${i}">${i}</option>`; sR.innerHTML += `<option value="${i}">${i}</option>`; });
+            
+            // --- CARREGA O DATALIST DE INGREDIENTES (PARA PERMITIR INSERÇÃO LIVRE) ---
+            const dataListIng = document.getElementById('lista-ingredientes');
+            const sP = document.getElementById('mv-pers-item');
+            
+            INGREDIENTES_BASE.sort().forEach(i => {
+                // Preenche o datalist para o Modal de Receita
+                dataListIng.innerHTML += `<option value="${i}">`;
+                // Preenche o select para a Venda Personalizada
+                sP.innerHTML += `<option value="${i}">${i}</option>`;
+            });
+
             await carregarDados();
         }
 
@@ -342,7 +356,19 @@
 
         window.abrirReceita = (nomeKit) => { KIT_EDITANDO = nomeKit; ITENS_RECEITA_TEMP = JSON.parse(JSON.stringify(RECEITAS_DB[nomeKit] || {})); document.getElementById('mr-titulo').innerText = nomeKit; renderItensReceitaModal(); document.getElementById('modalReceita').classList.remove('hidden'); };
         function renderItensReceitaModal() { const div = document.getElementById('mr-itens'); div.innerHTML = ''; Object.entries(ITENS_RECEITA_TEMP).forEach(([nome, qtd]) => { div.innerHTML += `<div class="flex justify-between items-center bg-white p-2 rounded-lg text-sm border"><span>${nome}</span><div class="flex items-center gap-3"><b>${qtd}</b><button onclick="removerItemReceita('${nome}')" class="text-red-300">✕</button></div></div>`; }); }
-        window.addItemReceita = () => { const n = document.getElementById('mr-add-nome').value, q = parseInt(document.getElementById('mr-add-qtd').value); ITENS_RECEITA_TEMP[n] = (ITENS_RECEITA_TEMP[n] || 0) + q; renderItensReceitaModal(); };
+        
+        // --- FUNÇÃO ATUALIZADA: ACEITA TEXTO LIVRE ---
+        window.addItemReceita = () => { 
+            const n = document.getElementById('mr-add-nome').value.trim(); // Pega o valor digitado
+            const q = parseInt(document.getElementById('mr-add-qtd').value); 
+            
+            if(n && q > 0) {
+                ITENS_RECEITA_TEMP[n] = (ITENS_RECEITA_TEMP[n] || 0) + q; 
+                document.getElementById('mr-add-nome').value = ''; // Limpa o campo
+                renderItensReceitaModal(); 
+            }
+        };
+
         window.removerItemReceita = (n) => { delete ITENS_RECEITA_TEMP[n]; renderItensReceitaModal(); };
         window.salvarReceita = async () => { await db.collection("receitas_lena").doc(KIT_EDITANDO).set(ITENS_RECEITA_TEMP); fecharModal('modalReceita'); await carregarDados(); mostrarToast("Salvo!"); };
 
@@ -351,7 +377,6 @@
 
         window.renderProdutos = () => { const l = document.getElementById('listaProdutos'), s = document.getElementById('mv-prod'); l.innerHTML = ''; s.innerHTML = '<option value="">Kit...</option>'; PRODUTOS.sort((a,b)=>a.preco-b.preco).forEach(p => { const rec = RECEITAS_DB[p.nome] || {}; const dS = Object.entries(rec).map(([n, q])=>`${q}x ${n}`).join(', ')||"Sem receita"; l.innerHTML += `<div class="bg-white p-5 rounded-2xl border shadow-sm flex justify-between items-start"><div><b class="text-brand-800">${p.nome}</b><p class="text-[10px] text-slate-400 mt-1">${dS}</p></div><button onclick="abrirReceita('${p.nome}')" class="text-brand-500 text-xs font-bold hover:underline">Editar Receita</button></div>`; s.innerHTML += `<option value="${p.preco}" data-nome="${p.nome}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`; }); };
         
-        // --- FUNÇÕES DE CADASTRO DE NOVO KIT ---
         window.abrirNovoKit = () => { document.getElementById('nk-nome').value = ''; document.getElementById('nk-preco').value = ''; document.getElementById('modalNovoKit').classList.remove('hidden'); };
         window.salvarNovoKit = async () => {
             const n = document.getElementById('nk-nome').value.toUpperCase(), p = parseFloat(document.getElementById('nk-preco').value);
