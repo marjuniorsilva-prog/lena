@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lena Kits V10.6 - Impressão Infinita</title>
+    <title>Lena Kits V10.7 - Cadastro de Kits</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,51 +36,17 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 20px; }
 
-        /* --- ESTILO DE IMPRESSÃO CORRIGIDO (PAGINAÇÃO) --- */
         @media print {
-            /* Esconde tudo que não é o modal */
             body > *:not(#modalRelatorio) { display: none !important; }
-            
-            /* Configura o corpo para aceitar conteúdo longo */
             html, body { height: auto !important; overflow: visible !important; background: white !important; }
-
-            /* Destrava o Modal */
-            #modalRelatorio { 
-                display: block !important; 
-                position: static !important; /* Solta o modal da tela */
-                inset: auto !important;
-                width: 100% !important; 
-                height: auto !important; 
-                max-height: none !important; /* Remove limite de altura */
-                background: white !important; 
-                padding: 0 !important; 
-                margin: 0 !important; 
-                z-index: 9999; 
-                overflow: visible !important;
-            }
-
-            /* Destrava o container interno */
-            .conteudo-print { 
-                box-shadow: none !important; 
-                border: none !important; 
-                max-width: 100% !important; 
-                width: 100% !important;
-                max-height: none !important; 
-                height: auto !important;
-                overflow: visible !important; 
-                display: block !important;
-            }
-
-            /* Esconde botões de fechar/imprimir na folha */
+            #modalRelatorio { display: block !important; position: static !important; inset: auto !important; width: 100% !important; height: auto !important; max-height: none !important; background: white !important; padding: 0 !important; margin: 0 !important; z-index: 9999; overflow: visible !important; }
+            .conteudo-print { box-shadow: none !important; border: none !important; max-width: 100% !important; width: 100% !important; max-height: none !important; height: auto !important; overflow: visible !important; display: block !important; }
             .no-print { display: none !important; }
-
-            /* Configura a Tabela */
             table { width: 100% !important; border-collapse: collapse; border: 1px solid #000; font-size: 11px; }
-            thead { display: table-header-group; } /* Repete cabeçalho em nova página se precisar */
-            tr { page-break-inside: avoid; } /* Evita cortar cliente ao meio */
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; }
             th { background-color: #eee !important; color: #000 !important; border: 1px solid #000; font-weight: bold; padding: 5px; }
             td { border: 1px solid #000; padding: 5px; color: #000 !important; vertical-align: top; }
-            
             .detalhe-kit { font-size: 10px; font-style: italic; display: block; margin-top: 2px; color: #333 !important; }
         }
     </style>
@@ -148,7 +114,13 @@
                     </div>
                 </div>
                 <div class="max-w-4xl mx-auto space-y-6">
-                    <div class="flex justify-between items-center"><h3 class="font-bold text-slate-600 text-lg">Produtos & Kits</h3><button onclick="carregarKitsIniciais()" class="text-xs text-brand-500 font-bold hover:underline">Resetar Padrão</button></div>
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-slate-600 text-lg">Produtos & Kits</h3>
+                        <div class="flex gap-3">
+                            <button onclick="abrirNovoKit()" class="text-xs bg-brand-100 text-brand-600 px-3 py-1 rounded-lg font-bold hover:bg-brand-200 transition border border-brand-200 shadow-sm">+ Novo Kit</button>
+                            <button onclick="carregarKitsIniciais()" class="text-xs text-slate-400 font-bold hover:underline">Resetar Padrão</button>
+                        </div>
+                    </div>
                     <div id="listaProdutos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
             </section>
@@ -164,14 +136,8 @@
                             <input type="text" id="novoTel" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-medium" placeholder="WhatsApp">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-xs font-bold text-slate-400 ml-2">1º Vencimento</label>
-                                <input type="date" id="novoDia" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold text-slate-600">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-400 ml-2">2º Vencimento</label>
-                                <input type="date" id="novoDia2" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold text-slate-600">
-                            </div>
+                            <div><label class="text-xs font-bold text-slate-400 ml-2">1º Vencimento</label><input type="date" id="novoDia" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold text-slate-600"></div>
+                            <div><label class="text-xs font-bold text-slate-400 ml-2">2º Vencimento</label><input type="date" id="novoDia2" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold text-slate-600"></div>
                         </div>
                         <button onclick="salvarNovoCliente()" class="w-full bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-lg mt-4 hover:bg-brand-800 transition">CADASTRAR</button>
                     </div>
@@ -185,25 +151,16 @@
                         <div class="grid grid-cols-1 gap-4">
                             <button onclick="gerarRelatorio('kits')" class="p-6 bg-sky-50 text-brand-600 rounded-2xl font-bold hover:bg-sky-100 transition shadow-sm text-left flex items-center gap-3">
                                 <i class="fa-solid fa-box-open text-2xl"></i>
-                                <div>
-                                    <div class="text-[10px] uppercase opacity-70">Produção</div>
-                                    <div class="text-lg">Kits & Ingredientes (Explodido)</div>
-                                </div>
+                                <div><div class="text-[10px] uppercase opacity-70">Produção</div><div class="text-lg">Kits & Ingredientes (Explodido)</div></div>
                             </button>
                             <div class="grid grid-cols-2 gap-4">
                                 <button onclick="gerarRelatorio('financeiro')" class="p-6 bg-slate-50 text-slate-600 rounded-2xl font-bold hover:bg-slate-100 transition shadow-sm text-left flex items-center gap-3">
                                     <i class="fa-solid fa-clock-rotate-left text-xl"></i>
-                                    <div>
-                                        <div class="text-[10px] uppercase opacity-70">Histórico</div>
-                                        <div class="text-sm">Vendas Feitas</div>
-                                    </div>
+                                    <div><div class="text-[10px] uppercase opacity-70">Histórico</div><div class="text-sm">Vendas Feitas</div></div>
                                 </button>
                                 <button onclick="gerarRelatorio('cobranca')" class="p-6 bg-orange-50 text-brand-orange rounded-2xl font-bold hover:bg-orange-100 transition shadow-sm text-left flex items-center gap-3">
                                     <i class="fa-solid fa-hand-holding-dollar text-xl"></i>
-                                    <div>
-                                        <div class="text-[10px] uppercase opacity-70">Cobrança</div>
-                                        <div class="text-sm">Contas a Receber</div>
-                                    </div>
+                                    <div><div class="text-[10px] uppercase opacity-70">Cobrança</div><div class="text-sm">Contas a Receber</div></div>
                                 </button>
                             </div>
                         </div>
@@ -230,9 +187,7 @@
                     <button onclick="fecharModal('modalRelatorio')" class="bg-white/20 w-10 h-10 rounded-full hover:bg-white/30">✕</button>
                 </div>
             </div>
-            <div class="p-8 overflow-y-auto flex-1 bg-white" id="corpoRelatorio">
-                Carregando dados...
-            </div>
+            <div class="p-8 overflow-y-auto flex-1 bg-white" id="corpoRelatorio">Carregando dados...</div>
         </div>
     </div>
 
@@ -249,6 +204,26 @@
             <div class="flex gap-3">
                 <button onclick="fecharModal('modalReceita')" class="flex-1 bg-slate-100 py-3 rounded-xl font-bold text-slate-500">Cancelar</button>
                 <button onclick="salvarReceita()" class="flex-1 bg-brand-600 text-white py-3 rounded-xl font-bold shadow-lg">Salvar Receita</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalNovoKit" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-8 animate-slide-up">
+            <h3 class="font-bold text-xl mb-4 text-slate-700">Cadastrar Novo Kit</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 ml-2">Nome do Kit</label>
+                    <input id="nk-nome" class="w-full p-3 bg-slate-50 rounded-xl font-bold outline-none border border-slate-100" placeholder="Ex: KIT R$ 200,00">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-400 ml-2">Preço (R$)</label>
+                    <input id="nk-preco" type="number" class="w-full p-3 bg-slate-50 rounded-xl font-bold outline-none border border-slate-100" placeholder="0.00">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="fecharModal('modalNovoKit')" class="flex-1 bg-slate-100 font-bold py-3 rounded-xl text-slate-500">Cancelar</button>
+                <button onclick="salvarNovoKit()" class="flex-1 bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-brand-700">Salvar</button>
             </div>
         </div>
     </div>
@@ -317,7 +292,6 @@
     <div id="toast" class="fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all z-[110] font-bold"><span id="toast-msg">Sucesso!</span></div>
 
     <script>
-        // CONFIG FIREBASE (LENA-BE4E0)
         const firebaseConfig = { apiKey: "AIzaSyARN99dDUlHkoZNkuvErMiPeg6R87palco", authDomain: "lena-be4e0.firebaseapp.com", projectId: "lena-be4e0", storageBucket: "lena-be4e0.firebasestorage.app", messagingSenderId: "459762572912", appId: "1:459762572912:web:c998f79ffb1eb8d7d59eb5" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -353,7 +327,6 @@
         async function inicializar() {
             document.getElementById('ed-setor').innerHTML = document.getElementById('novoSetor').innerHTML;
             const h = new Date(); document.getElementById('dataInicio').valueAsDate = new Date(h.getFullYear(), h.getMonth(), 1); document.getElementById('dataFim').valueAsDate = h;
-            
             const sP = document.getElementById('mv-pers-item'), sR = document.getElementById('mr-add-nome');
             INGREDIENTES_BASE.sort().forEach(i => { sP.innerHTML += `<option value="${i}">${i}</option>`; sR.innerHTML += `<option value="${i}">${i}</option>`; });
             await carregarDados();
@@ -378,6 +351,18 @@
 
         window.renderProdutos = () => { const l = document.getElementById('listaProdutos'), s = document.getElementById('mv-prod'); l.innerHTML = ''; s.innerHTML = '<option value="">Kit...</option>'; PRODUTOS.sort((a,b)=>a.preco-b.preco).forEach(p => { const rec = RECEITAS_DB[p.nome] || {}; const dS = Object.entries(rec).map(([n, q])=>`${q}x ${n}`).join(', ')||"Sem receita"; l.innerHTML += `<div class="bg-white p-5 rounded-2xl border shadow-sm flex justify-between items-start"><div><b class="text-brand-800">${p.nome}</b><p class="text-[10px] text-slate-400 mt-1">${dS}</p></div><button onclick="abrirReceita('${p.nome}')" class="text-brand-500 text-xs font-bold hover:underline">Editar Receita</button></div>`; s.innerHTML += `<option value="${p.preco}" data-nome="${p.nome}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`; }); };
         
+        // --- FUNÇÕES DE CADASTRO DE NOVO KIT ---
+        window.abrirNovoKit = () => { document.getElementById('nk-nome').value = ''; document.getElementById('nk-preco').value = ''; document.getElementById('modalNovoKit').classList.remove('hidden'); };
+        window.salvarNovoKit = async () => {
+            const n = document.getElementById('nk-nome').value.toUpperCase(), p = parseFloat(document.getElementById('nk-preco').value);
+            if(n && p) {
+                await db.collection("produtos_lena").add({nome: n, preco: p});
+                fecharModal('modalNovoKit');
+                carregarDados();
+                mostrarToast("Kit Criado!");
+            }
+        };
+
         window.abrirVenda = (id) => { CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); document.getElementById('mv-nome').innerText = CLIENTE_ATUAL.nome; document.getElementById('mv-data').valueAsDate = new Date(); CARRINHO = []; ITENS_PERSONALIZADOS = []; mudarModoVenda('padrao'); atualizarCarrinho(); document.getElementById('modalVenda').classList.remove('hidden'); };
         window.mudarModoVenda = (modo) => { MODO_VENDA = modo; document.getElementById('modo-padrao').classList.toggle('hidden', modo !== 'padrao'); document.getElementById('modo-personalizado').classList.toggle('hidden', modo !== 'personalizado'); document.getElementById('btn-modo-padrao').className = modo==='padrao'?'flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-sky-50':'flex-1 py-3 text-sm font-bold text-slate-400'; document.getElementById('btn-modo-personalizado').className = modo==='personalizado'?'flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-sky-50':'flex-1 py-3 text-sm font-bold text-slate-400'; };
         window.addCarrinho = () => { const sel = document.getElementById('mv-prod'), n = sel.options[sel.selectedIndex]?.getAttribute('data-nome'), p = parseFloat(sel.value), q = parseFloat(document.getElementById('mv-qtd').value); if(n) { CARRINHO.push({nome:n, qtd:q, total:p*q}); atualizarCarrinho(); } };
@@ -399,7 +384,6 @@
             div.innerHTML = ''; Object.entries(res).sort().forEach(([n, q], idx) => { div.innerHTML += `<div class="flex items-center gap-3 p-3 bg-white border rounded-xl"><input type="checkbox" checked class="check-custom" id="check-${idx}"><div class="flex-1 font-bold">${n}</div><input type="number" value="${q}" id="qtd-${idx}" class="w-16 p-1 bg-sky-50 rounded text-center font-bold outline-none"></div>`; });
         };
 
-        // --- SISTEMA DE DATAS COMPLETAS ---
         window.renderCobranca = (tipo) => {
             const lista = document.getElementById('listaCobranca'); lista.innerHTML = ''; let total = 0;
             const filtrados = CLIENTES.filter(c => c.saldo < -0.01 && obterStatusDataCompleta(c.dia_pagamento, c.dia_pagamento_2) === tipo);
@@ -407,21 +391,8 @@
             filtrados.forEach(c => { total += Math.abs(c.saldo); let dS = formatDatasCob(c); lista.innerHTML += `<div class="p-5 flex justify-between items-center hover:bg-slate-50 border-b border-slate-100 last:border-0 transition"><div><div class="font-bold text-slate-700 text-lg">${c.nome}</div><div class="text-xs text-slate-400 font-bold">Vencimento: ${dS}</div></div><div class="flex items-center gap-4"><div class="font-black text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${Math.abs(c.saldo).toFixed(2)}</div><a href="${linkZ(c, tipo)}" target="_blank" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md"><i class="fa-brands fa-whatsapp"></i></a></div></div>`; });
             document.getElementById(`total-${tipo}`).innerText = `R$ ${total.toFixed(2)}`;
         };
-        function formatDatasCob(c) {
-            let s = [];
-            if(c.dia_pagamento) s.push(c.dia_pagamento.split('-').reverse().join('/'));
-            if(c.dia_pagamento_2) s.push(c.dia_pagamento_2.split('-').reverse().join('/'));
-            return s.join(' e ');
-        }
-        function obterStatusDataCompleta(d1, d2) { 
-            const hoje = new Date().toISOString().split('T')[0];
-            let datas = []; if(d1) datas.push(d1); if(d2) datas.push(d2);
-            if(datas.length === 0) return 'nada';
-            if(datas.includes(hoje)) return 'hoje';
-            // Se tem alguma data passada (menor que hoje) -> atrasado
-            if(datas.some(d => d < hoje)) return 'atrasados';
-            return 'avencer';
-        }
+        function formatDatasCob(c) { let s = []; if(c.dia_pagamento) s.push(c.dia_pagamento.split('-').reverse().join('/')); if(c.dia_pagamento_2) s.push(c.dia_pagamento_2.split('-').reverse().join('/')); return s.join(' e '); }
+        function obterStatusDataCompleta(d1, d2) { const hoje = new Date().toISOString().split('T')[0]; let datas = []; if(d1) datas.push(d1); if(d2) datas.push(d2); if(datas.length === 0) return 'nada'; if(datas.includes(hoje)) return 'hoje'; if(datas.some(d => d < hoje)) return 'atrasados'; return 'avencer'; }
 
         window.salvarNovoCliente = async () => { const n = document.getElementById('novoNome').value.toUpperCase(); if(n) { await db.collection("clientes").add({ nome: n, setor: document.getElementById('novoSetor').value, telefone: document.getElementById('novoTel').value, dia_pagamento: document.getElementById('novoDia').value, dia_pagamento_2: document.getElementById('novoDia2').value, saldo: 0 }); document.getElementById('novoNome').value = ''; carregarDados(); mudarAba('clientes'); mostrarToast("Adicionado!"); } };
         window.abrirEditar = (id) => { const c = CLIENTES.find(x => x.id === id); CLIENTE_ATUAL = c; document.getElementById('ed-nome').value = c.nome; document.getElementById('ed-tel').value = c.telefone; document.getElementById('ed-setor').value = c.setor; document.getElementById('ed-dia').value = c.dia_pagamento; document.getElementById('ed-dia2').value = c.dia_pagamento_2 || ""; document.getElementById('modalEditar').classList.remove('hidden'); };
@@ -437,7 +408,6 @@
         function disparaConfete() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
         window.copiarLista = () => { const its = document.getElementById('ml-conteudo').children; let t = `*LISTA DE COMPRAS LENA*\n\n`; for(let i=0; i<its.length; i++){ if(document.getElementById(`check-${i}`).checked) t += `[ ] ${document.getElementById(`qtd-${i}`).value} - ${its[i].querySelector('div.flex-1').innerText}\n`; } navigator.clipboard.writeText(t); mostrarToast("Copiada!"); };
 
-        // --- RELATÓRIOS LIMPOS & EXPLODIDOS (ORDENAÇÃO MANUAL) ---
         window.gerarRelatorio = async (tipo) => {
             document.getElementById('modalRelatorio').classList.remove('hidden');
             let titulo = '';
@@ -451,18 +421,16 @@
 
             const snap = await db.collection("transacoes").limit(200).get();
             let docs = []; snap.forEach(d => docs.push(d.data()));
-            docs.sort((a,b) => b.timestamp - a.timestamp); // Ordenação JS
+            docs.sort((a,b) => b.timestamp - a.timestamp);
 
             let html = '<table class="w-full text-left font-sans text-xs md:text-sm" border="1" cellpadding="5" cellspacing="0">';
             
-            // RELATORIO KITS EXPLODIDO
             if (tipo === 'kits') {
                 html += '<thead><tr><th>Data</th><th>Cliente</th><th>Kit Vendido</th><th>Conteúdo (Detalhe)</th></tr></thead><tbody>';
                 docs.filter(d => d.tipo === 'VENDA').forEach(d => {
                     const cliente = CLIENTES.find(c => c.id === d.cliente_id)?.nome || 'Cliente Removido';
                     const dataF = d.data.split('-').reverse().join('/');
                     let detalhes = "";
-                    
                     if(d.descricao) {
                         d.descricao.split(', ').forEach(item => {
                             const partes = item.split('x ');
@@ -479,8 +447,6 @@
                     }
                     html += `<tr><td>${dataF}</td><td>${cliente}</td><td>${d.descricao}</td><td>${detalhes}</td></tr>`;
                 });
-
-            // RELATORIO COBRANCA (DATAS EXATAS)
             } else if (tipo === 'cobranca') {
                 html += '<thead><tr><th>Cliente</th><th align="right">Total Devido</th><th>Vencimento 1</th><th>Vencimento 2</th></tr></thead><tbody>';
                 let totalGeral = 0;
@@ -491,8 +457,6 @@
                     html += `<tr><td>${c.nome}</td><td align="right" style="color:red">R$ ${Math.abs(c.saldo).toFixed(2)}</td><td>${v1}</td><td>${v2}</td></tr>`;
                 });
                 html += `<tr><td align="right"><b>TOTAL:</b></td><td align="right"><b>R$ ${totalGeral.toFixed(2)}</b></td><td colspan="2"></td></tr>`;
-
-            // RELATORIO HISTORICO
             } else {
                 html += '<thead><tr><th>Data</th><th>Cliente</th><th>Tipo</th><th align="right">Valor</th></tr></thead><tbody>';
                 let totalVendas = 0; let totalPgto = 0;
@@ -507,7 +471,6 @@
                 html += `<tr><td colspan="3" align="right"><b>Total Vendas:</b></td><td align="right">R$ ${totalVendas.toFixed(2)}</td></tr>`;
                 html += `<tr><td colspan="3" align="right"><b>Total Recebido:</b></td><td align="right">R$ ${totalPgto.toFixed(2)}</td></tr>`;
             }
-            
             html += '</tbody></table>';
             corpo.innerHTML = html;
         };
