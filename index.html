@@ -95,6 +95,20 @@
 
             <section id="tab-cobranca" class="hide p-8 animate-fade-in space-y-8 overflow-y-auto h-full">
                 <h2 class="text-3xl font-display font-bold text-brand-800 flex items-center gap-2"><i class="fa-solid fa-file-invoice-dollar text-brand-orange"></i> Financeiro</h2>
+                
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col md:flex-row gap-4 items-end no-print">
+                    <div class="flex-1 w-full">
+                        <label class="text-xs font-bold text-slate-400 block mb-1 uppercase">Vencimento Início</label>
+                        <input type="date" id="cobDataInicio" class="w-full p-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 outline-none">
+                    </div>
+                    <div class="flex-1 w-full">
+                        <label class="text-xs font-bold text-slate-400 block mb-1 uppercase">Vencimento Fim</label>
+                        <input type="date" id="cobDataFim" class="w-full p-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 outline-none">
+                    </div>
+                    <button onclick="renderCobranca('periodo')" class="w-full md:w-auto bg-brand-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-800 transition shadow-lg flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-filter"></i> Filtrar
+                    </button>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5 no-print">
                     <div onclick="renderCobranca('hoje')" class="cursor-pointer bg-white p-6 rounded-3xl shadow-lg border border-blue-100 hover:-translate-y-1 transition-all"><div class="text-blue-400 font-bold text-xs mb-1">Vence Hoje</div><div class="text-3xl font-bold text-slate-700" id="total-hoje">R$ 0,00</div></div>
                     <div onclick="renderCobranca('avencer')" class="cursor-pointer bg-white p-6 rounded-3xl shadow-lg border border-green-100 hover:-translate-y-1 transition-all"><div class="text-green-500 font-bold text-xs mb-1">No Prazo</div><div class="text-3xl font-bold text-slate-700" id="total-avencer">R$ 0,00</div></div>
@@ -332,14 +346,11 @@
             document.getElementById('ed-setor').innerHTML = document.getElementById('novoSetor').innerHTML;
             const h = new Date(); document.getElementById('dataInicio').valueAsDate = new Date(h.getFullYear(), h.getMonth(), 1); document.getElementById('dataFim').valueAsDate = h;
             
-            // --- CARREGA O DATALIST DE INGREDIENTES (PARA PERMITIR INSERÇÃO LIVRE) ---
             const dataListIng = document.getElementById('lista-ingredientes');
             const sP = document.getElementById('mv-pers-item');
             
             INGREDIENTES_BASE.sort().forEach(i => {
-                // Preenche o datalist para o Modal de Receita
                 dataListIng.innerHTML += `<option value="${i}">`;
-                // Preenche o select para a Venda Personalizada
                 sP.innerHTML += `<option value="${i}">${i}</option>`;
             });
 
@@ -357,14 +368,13 @@
         window.abrirReceita = (nomeKit) => { KIT_EDITANDO = nomeKit; ITENS_RECEITA_TEMP = JSON.parse(JSON.stringify(RECEITAS_DB[nomeKit] || {})); document.getElementById('mr-titulo').innerText = nomeKit; renderItensReceitaModal(); document.getElementById('modalReceita').classList.remove('hidden'); };
         function renderItensReceitaModal() { const div = document.getElementById('mr-itens'); div.innerHTML = ''; Object.entries(ITENS_RECEITA_TEMP).forEach(([nome, qtd]) => { div.innerHTML += `<div class="flex justify-between items-center bg-white p-2 rounded-lg text-sm border"><span>${nome}</span><div class="flex items-center gap-3"><b>${qtd}</b><button onclick="removerItemReceita('${nome}')" class="text-red-300">✕</button></div></div>`; }); }
         
-        // --- FUNÇÃO ATUALIZADA: ACEITA TEXTO LIVRE ---
         window.addItemReceita = () => { 
-            const n = document.getElementById('mr-add-nome').value.trim(); // Pega o valor digitado
+            const n = document.getElementById('mr-add-nome').value.trim(); 
             const q = parseInt(document.getElementById('mr-add-qtd').value); 
             
             if(n && q > 0) {
                 ITENS_RECEITA_TEMP[n] = (ITENS_RECEITA_TEMP[n] || 0) + q; 
-                document.getElementById('mr-add-nome').value = ''; // Limpa o campo
+                document.getElementById('mr-add-nome').value = ''; 
                 renderItensReceitaModal(); 
             }
         };
@@ -410,12 +420,58 @@
         };
 
         window.renderCobranca = (tipo) => {
-            const lista = document.getElementById('listaCobranca'); lista.innerHTML = ''; let total = 0;
-            const filtrados = CLIENTES.filter(c => c.saldo < -0.01 && obterStatusDataCompleta(c.dia_pagamento, c.dia_pagamento_2) === tipo);
-            if(filtrados.length===0) lista.innerHTML = '<p class="p-10 text-center opacity-40 font-bold">Tudo em dia! ✨</p>';
-            filtrados.forEach(c => { total += Math.abs(c.saldo); let dS = formatDatasCob(c); lista.innerHTML += `<div class="p-5 flex justify-between items-center hover:bg-slate-50 border-b border-slate-100 last:border-0 transition"><div><div class="font-bold text-slate-700 text-lg">${c.nome}</div><div class="text-xs text-slate-400 font-bold">Vencimento: ${dS}</div></div><div class="flex items-center gap-4"><div class="font-black text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${Math.abs(c.saldo).toFixed(2)}</div><a href="${linkZ(c, tipo)}" target="_blank" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md"><i class="fa-brands fa-whatsapp"></i></a></div></div>`; });
-            document.getElementById(`total-${tipo}`).innerText = `R$ ${total.toFixed(2)}`;
+            const lista = document.getElementById('listaCobranca'); 
+            lista.innerHTML = ''; 
+            let total = 0;
+            let filtrados = [];
+
+            if (tipo === 'periodo') {
+                const i = document.getElementById('cobDataInicio').value;
+                const f = document.getElementById('cobDataFim').value;
+                
+                if (!i || !f) { 
+                    mostrarToast("Selecione as datas de início e fim!"); 
+                    return; 
+                }
+
+                filtrados = CLIENTES.filter(c => {
+                    if (c.saldo >= -0.01) return false; 
+                    const d1 = c.dia_pagamento || '9999-99-99';
+                    const d2 = c.dia_pagamento_2 || '9999-99-99';
+                    return (d1 >= i && d1 <= f) || (d2 >= i && d2 <= f);
+                });
+            } else {
+                filtrados = CLIENTES.filter(c => c.saldo < -0.01 && obterStatusDataCompleta(c.dia_pagamento, c.dia_pagamento_2) === tipo);
+            }
+
+            if (filtrados.length === 0) {
+                lista.innerHTML = '<p class="p-10 text-center opacity-40 font-bold">Tudo limpo para este período! ✨</p>';
+            } else {
+                if (tipo === 'periodo') {
+                    lista.innerHTML = `<div class="p-4 bg-brand-50 border-b border-brand-100 text-brand-800 font-bold text-center flex justify-between px-8">
+                        <span>Total no Período Filtrado:</span> 
+                        <span id="total-periodo" class="text-xl font-black">R$ 0,00</span>
+                    </div>`;
+                }
+            }
+
+            filtrados.forEach(c => { 
+                total += Math.abs(c.saldo); 
+                let dS = formatDatasCob(c); 
+                
+                let tipoMsgWhatsApp = (tipo === 'periodo') ? 'hoje' : tipo; 
+                
+                lista.innerHTML += `<div class="p-5 flex justify-between items-center hover:bg-slate-50 border-b border-slate-100 last:border-0 transition"><div><div class="font-bold text-slate-700 text-lg">${c.nome}</div><div class="text-xs text-slate-400 font-bold">Vencimento: ${dS}</div></div><div class="flex items-center gap-4"><div class="font-black text-brand-600 bg-sky-50 px-3 py-1 rounded-lg">R$ ${Math.abs(c.saldo).toFixed(2)}</div><a href="${linkZ(c, tipoMsgWhatsApp)}" target="_blank" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md"><i class="fa-brands fa-whatsapp"></i></a></div></div>`; 
+            });
+
+            if (tipo === 'periodo') {
+                const el = document.getElementById('total-periodo');
+                if(el) el.innerText = `R$ ${total.toFixed(2)}`;
+            } else {
+                document.getElementById(`total-${tipo}`).innerText = `R$ ${total.toFixed(2)}`;
+            }
         };
+
         function formatDatasCob(c) { let s = []; if(c.dia_pagamento) s.push(c.dia_pagamento.split('-').reverse().join('/')); if(c.dia_pagamento_2) s.push(c.dia_pagamento_2.split('-').reverse().join('/')); return s.join(' e '); }
         function obterStatusDataCompleta(d1, d2) { const hoje = new Date().toISOString().split('T')[0]; let datas = []; if(d1) datas.push(d1); if(d2) datas.push(d2); if(datas.length === 0) return 'nada'; if(datas.includes(hoje)) return 'hoje'; if(datas.some(d => d < hoje)) return 'atrasados'; return 'avencer'; }
 
