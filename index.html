@@ -193,7 +193,6 @@
         </main>
     </div>
 
-    <!-- MODAL EDITAR KIT/PRODUTO -->
     <div id="modalEditarKit" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[120] flex items-center justify-center p-4 no-print">
         <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-8 animate-slide-up">
             <h3 class="font-bold text-xl mb-4 text-slate-700">Editar Produto</h3>
@@ -219,7 +218,6 @@
         </div>
     </div>
 
-    <!-- MODAL GERENCIAR INGREDIENTES/ITENS -->
     <div id="modalGerenciarIngredientes" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[130] flex items-center justify-center p-4 no-print">
         <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-8 animate-slide-up flex flex-col max-h-[90vh]">
             <h3 class="font-bold text-xl mb-2 text-slate-700">Gerenciar Itens / Ingredientes</h3>
@@ -610,12 +608,50 @@
 
         // --- RELATÓRIOS E COMPRAS ---
         window.gerarListaCompras = async () => {
-            const i = document.getElementById('dataInicio').value, f = document.getElementById('dataFim').value; if(!i || !f) return;
-            const div = document.getElementById('ml-conteudo'); div.innerHTML = 'Buscando...'; document.getElementById('modalLista').classList.remove('hidden'); document.getElementById('ml-data').innerText = `${i.split('-').reverse().join('/')} até ${f.split('-').reverse().join('/')}`;
+            const i = document.getElementById('dataInicio').value;
+            const f = document.getElementById('dataFim').value;
+            if(!i || !f) return;
+
+            const div = document.getElementById('ml-conteudo');
+            div.innerHTML = 'Buscando...';
+            document.getElementById('modalLista').classList.remove('hidden');
+            document.getElementById('ml-data').innerText = `${i.split('-').reverse().join('/')} até ${f.split('-').reverse().join('/')}`;
+
             const snap = await db.collection("transacoes").where("tipo", "==", "VENDA").get();
-            let res = {}; snap.forEach(doc => { const v = doc.data(); if(v.data >= i && v.data <= f && v.descricao) { v.descricao.split(', ').forEach(it => { const p = it.split('x '); if(p.length>=2){ const q = parseInt(p[0]), n = p[1].trim(); const rec = RECEITAS_DB[n]; if(rec){ for(const [ing, qr] of Object.entries(rec)) res[ing] = (res[ing]||0)+(qr*q); } else res[n] = (res[n]||0)+q; } }); } });
-            div.innerHTML = ''; Object.entries(res).sort().forEach(([n, q], idx) => { div.innerHTML += `<div class="flex items-center gap-3 p-3 bg-white border rounded-xl"><input type="checkbox" checked class="check-custom" id="check-${idx}"><div class="flex-1 font-bold">${n}</div><input type="number" value="${q}" id="qtd-${idx}" class="w-16 p-1 bg-sky-50 rounded text-center font-bold outline-none"></div>`; });
+            let res = {};
+
+            snap.forEach(doc => {
+                const v = doc.data();
+                if (v.data >= i && v.data <= f && v.descricao) {
+                    const regex = /(\d+)x\s+(.*?)(?=\s*,\s*\d+x\s+|$)/g;
+                    let match;
+
+                    while ((match = regex.exec(v.descricao)) !== null) {
+                        const q = parseInt(match[1]);
+                        const n = match[2].trim();
+                        const rec = RECEITAS_DB[n];
+
+                        if (rec) {
+                            for (const [ing, qr] of Object.entries(rec)) {
+                                res[ing] = (res[ing] || 0) + (qr * q);
+                            }
+                        } else {
+                            res[n] = (res[n] || 0) + q;
+                        }
+                    }
+                }
+            });
+
+            div.innerHTML = '';
+            Object.entries(res).sort().forEach(([n, q], idx) => {
+                div.innerHTML += `<div class="flex items-center gap-3 p-3 bg-white border rounded-xl">
+                    <input type="checkbox" checked class="check-custom" id="check-${idx}">
+                    <div class="flex-1 font-bold">${n}</div>
+                    <input type="number" value="${q}" id="qtd-${idx}" class="w-16 p-1 bg-sky-50 rounded text-center font-bold outline-none">
+                </div>`;
+            });
         };
+
         window.copiarLista = () => { const its = document.getElementById('ml-conteudo').children; let t = `*LISTA DE COMPRAS LENA*\n\n`; for(let i=0; i<its.length; i++){ if(document.getElementById(`check-${i}`).checked) t += `[ ] ${document.getElementById(`qtd-${i}`).value} - ${its[i].querySelector('div.flex-1').innerText}\n`; } navigator.clipboard.writeText(t); mostrarToast("Copiada!"); };
 
         window.renderCobranca = (tipo) => {
