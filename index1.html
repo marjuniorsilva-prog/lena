@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lena Kits V12 - Ingredientes Livres</title>
+    <title>Lena Kits V10.8 - Ingredientes Livres</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -407,7 +407,6 @@
             renderClientes(); renderProdutos();
         }
 
-        // --- FUNÇÕES DE KITS/PRODUTOS ---
         window.renderProdutos = () => { 
             const l = document.getElementById('listaProdutos'), s = document.getElementById('mv-prod'); 
             l.innerHTML = ''; s.innerHTML = '<option value="">Selecione o Produto...</option>'; 
@@ -478,7 +477,6 @@
             }
         };
 
-        // --- FUNÇÕES DE INGREDIENTES / ITENS AVULSOS ---
         function atualizarListasIngredientes() {
             const dataListIng = document.getElementById('lista-ingredientes');
             const sP = document.getElementById('mv-pers-item');
@@ -540,23 +538,21 @@
                 return;
             }
 
-            // Atualiza na lista geral
             INGREDIENTES_BASE[index] = nomeFinal;
             await db.collection("config_lena").doc("ingredientes").set({ lista: INGREDIENTES_BASE });
 
-            // Varre as receitas existentes para atualizar o nome do ingrediente lá dentro também
             let atualizouReceita = false;
             for (const [nomeKit, receita] of Object.entries(RECEITAS_DB)) {
                 if (receita[nomeAntigo]) {
-                    receita[nomeFinal] = receita[nomeAntigo]; // Cria com o novo nome
-                    delete receita[nomeAntigo]; // Apaga o velho
+                    receita[nomeFinal] = receita[nomeAntigo]; 
+                    delete receita[nomeAntigo]; 
                     await db.collection("receitas_lena").doc(nomeKit).set(receita);
                     atualizouReceita = true;
                 }
             }
 
             if(atualizouReceita) {
-                await carregarDados(); // Recarrega RECEITAS_DB e Produtos para mostrar na tela
+                await carregarDados(); 
             }
 
             renderListaGerenciarIngredientes();
@@ -564,7 +560,6 @@
             mostrarToast("Nome alterado com sucesso!");
         };
 
-        // --- RECEITAS ---
         window.abrirReceita = (nomeKit) => { KIT_EDITANDO = nomeKit; ITENS_RECEITA_TEMP = JSON.parse(JSON.stringify(RECEITAS_DB[nomeKit] || {})); document.getElementById('mr-titulo').innerText = nomeKit; renderItensReceitaModal(); document.getElementById('modalReceita').classList.remove('hidden'); };
         function renderItensReceitaModal() { const div = document.getElementById('mr-itens'); div.innerHTML = ''; Object.entries(ITENS_RECEITA_TEMP).forEach(([nome, qtd]) => { div.innerHTML += `<div class="flex justify-between items-center bg-white p-2 rounded-lg text-sm border"><span>${nome}</span><div class="flex items-center gap-3"><b>${qtd}</b><button onclick="removerItemReceita('${nome}')" class="text-red-300">✕</button></div></div>`; }); }
         
@@ -581,7 +576,6 @@
         window.removerItemReceita = (n) => { delete ITENS_RECEITA_TEMP[n]; renderItensReceitaModal(); };
         window.salvarReceita = async () => { await db.collection("receitas_lena").doc(KIT_EDITANDO).set(ITENS_RECEITA_TEMP); fecharModal('modalReceita'); await carregarDados(); mostrarToast("Salvo!"); };
 
-        // --- CLIENTES E COBRANÇAS ---
         window.renderClientes = () => { const g = document.getElementById('gridClientes'), b = document.getElementById('buscaNome').value.toUpperCase(), s = document.getElementById('filtroSetor').value; g.innerHTML = ''; CLIENTES.filter(c => (!b || c.nome.includes(b)) && (!s || c.setor === s)).forEach(c => { const d = (c.saldo || 0) < -0.05; g.innerHTML += `<div class="bg-white rounded-[2rem] p-6 shadow-sm border border-sky-50 relative"><button onclick="abrirEditar('${c.id}')" class="absolute top-5 right-5 text-slate-200"><i class="fa-solid fa-pen"></i></button><div class="flex items-center gap-4 mb-5"><div class="w-14 h-14 rounded-2xl ${d?'bg-red-50 text-red-400':'bg-green-50 text-green-500'} flex items-center justify-center font-bold text-2xl shadow-inner">${c.nome.charAt(0)}</div><div class="overflow-hidden"><h3 class="font-bold text-slate-700 truncate">${c.nome}</h3><span class="text-[9px] bg-slate-50 text-slate-400 px-2 py-0.5 rounded font-black">${c.setor}</span></div></div><div class="bg-slate-50/50 p-4 rounded-2xl mb-4 border border-slate-50 flex justify-between items-end"><div><p class="text-[9px] text-slate-400 font-bold uppercase">Saldo</p><p class="text-xl font-black ${d?'text-red-400':'text-green-500'}">R$ ${Math.abs(c.saldo||0).toFixed(2)}</p></div><div class="text-right text-[10px] font-bold text-slate-400 uppercase">Venc: ${formatDataCurta(c.dia_pagamento)}</div></div><div class="grid grid-cols-3 gap-2"><button onclick="abrirVenda('${c.id}')" class="bg-sky-50 text-brand-600 p-2 rounded-xl text-[10px] font-bold uppercase">Vender</button><button onclick="abrirPagamento('${c.id}')" class="bg-green-50 text-green-600 p-2 rounded-xl text-[10px] font-bold uppercase">Receber</button><button onclick="verExtrato('${c.id}')" class="bg-slate-50 text-slate-400 p-2 rounded-xl text-[10px] font-bold uppercase">Histórico</button></div></div>`; }); };
         function formatDataCurta(d) { return d ? d.split('-').reverse().slice(0,2).join('/') : '--'; }
 
@@ -606,7 +600,7 @@
         window.abrirPagamento = (id) => { CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); document.getElementById('mp-nome').innerText = CLIENTE_ATUAL.nome; document.getElementById('mp-data').valueAsDate = new Date(); document.getElementById('mp-valor').value = ''; document.getElementById('modalPgto').classList.remove('hidden'); };
         window.confirmarPgto = async () => { const v = parseFloat(document.getElementById('mp-valor').value); if(!v) return; await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ saldo: (CLIENTE_ATUAL.saldo || 0) + v }); await db.collection("transacoes").add({ cliente_id: CLIENTE_ATUAL.id, tipo: 'PAGAMENTO', valor: v, data: document.getElementById('mp-data').value, timestamp: new Date() }); fecharModal('modalPgto'); carregarDados(); mostrarToast("Recebido!"); };
 
-        // --- RELATÓRIOS E COMPRAS ---
+        // --- ATUALIZADO: LÓGICA DE LISTA DE COMPRAS À PROVA DE FALHAS ---
         window.gerarListaCompras = async () => {
             const i = document.getElementById('dataInicio').value;
             const f = document.getElementById('dataFim').value;
@@ -623,14 +617,13 @@
             snap.forEach(doc => {
                 const v = doc.data();
                 if (v.data >= i && v.data <= f && v.descricao) {
-                    const regex = /(\d+)x\s+(.*?)(?=\s*,\s*\d+x\s+|$)/g;
-                    let match;
+                    
+                    const parts = v.descricao.split(', ');
+                    let currentQtd = 0;
+                    let currentName = "";
 
-                    while ((match = regex.exec(v.descricao)) !== null) {
-                        const q = parseInt(match[1]);
-                        const n = match[2].trim();
+                    const processItem = (q, n) => {
                         const rec = RECEITAS_DB[n];
-
                         if (rec) {
                             for (const [ing, qr] of Object.entries(rec)) {
                                 res[ing] = (res[ing] || 0) + (qr * q);
@@ -638,6 +631,29 @@
                         } else {
                             res[n] = (res[n] || 0) + q;
                         }
+                    };
+
+                    parts.forEach(part => {
+                        // Verifica se começa com número + x/X + espaço (Ex: "3x Produto")
+                        const match = part.trim().match(/^(\d+)[xX]\s+(.*)/);
+                        if (match) {
+                            // Se já havia um item na memória, salva ele antes de pegar o novo
+                            if (currentName) {
+                                processItem(currentQtd, currentName.trim());
+                            }
+                            currentQtd = parseInt(match[1]);
+                            currentName = match[2];
+                        } else {
+                            // Se não começou com "Nx ", junta o pedaço de volta ao nome (pois é uma vírgula dentro do nome do kit)
+                            if (currentName) {
+                                currentName += ', ' + part.trim();
+                            }
+                        }
+                    });
+                    
+                    // Salva o último item processado daquela venda
+                    if (currentName) {
+                        processItem(currentQtd, currentName.trim());
                     }
                 }
             });
@@ -676,7 +692,6 @@
         function formatDatasCob(c) { let s = []; if(c.dia_pagamento) s.push(c.dia_pagamento.split('-').reverse().join('/')); if(c.dia_pagamento_2) s.push(c.dia_pagamento_2.split('-').reverse().join('/')); return s.join(' e '); }
         function obterStatusDataCompleta(d1, d2) { const hoje = new Date().toISOString().split('T')[0]; let datas = []; if(d1) datas.push(d1); if(d2) datas.push(d2); if(datas.length === 0) return 'nada'; if(datas.includes(hoje)) return 'hoje'; if(datas.some(d => d < hoje)) return 'atrasados'; return 'avencer'; }
 
-        // --- SISTEMA E UTILS ---
         window.salvarConfig = async () => { await db.collection("config_lena").doc("templates").set({ pix: document.getElementById('cfgPix').value, hoje: document.getElementById('msgHoje').value, atrasado: document.getElementById('msgAtrasado').value }); mostrarToast("Configurações Salvas!"); };
         window.mudarAba = (aba) => { document.querySelectorAll('section').forEach(s => s.classList.add('hide')); document.getElementById(`tab-${aba}`).classList.remove('hide'); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('bg-sky-50', 'text-brand-600')); document.getElementById(`btn-${aba}`).classList.add('bg-sky-50', 'text-brand-600'); if(aba==='cobranca') { renderCobranca('hoje'); renderCobranca('avencer'); renderCobranca('atrasados'); } };
         window.fecharModal = (id) => document.getElementById(id).classList.add('hidden');
@@ -685,6 +700,7 @@
         function linkZ(c, t) { let m = CONFIG[t] || ""; m = m.replace(/{nome}/g, c.nome).replace(/{valor}/g, Math.abs(c.saldo).toFixed(2)).replace(/{pix}/g, CONFIG.pix); return `https://wa.me/55${c.telefone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`; }
         function disparaConfete() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
 
+        // --- ATUALIZADO: RELATÓRIO TAMBÉM À PROVA DE FALHAS ---
         window.gerarRelatorio = async (tipo) => {
             document.getElementById('modalRelatorio').classList.remove('hidden');
             let titulo = '';
@@ -709,18 +725,33 @@
                     const dataF = d.data.split('-').reverse().join('/');
                     let detalhes = "";
                     if(d.descricao) {
-                        d.descricao.split(', ').forEach(item => {
-                            const partes = item.split('x ');
-                            if(partes.length >= 2) {
-                                const nomeKit = partes[1].trim();
-                                if(RECEITAS_DB[nomeKit]) {
-                                    const ing = Object.entries(RECEITAS_DB[nomeKit]).map(([k,v]) => `${v} ${k}`).join(', ');
-                                    detalhes += `<span class='detalhe-kit'>↳ ${ing}</span>`;
-                                } else {
-                                    detalhes += `<span class='detalhe-kit text-slate-400'>↳ (Sem receita cadastrada)</span>`;
+                        const parts = d.descricao.split(', ');
+                        let currentName = "";
+                        
+                        parts.forEach(part => {
+                            const match = part.trim().match(/^(\d+)[xX]\s+(.*)/);
+                            if(match) {
+                                if(currentName) {
+                                    if(RECEITAS_DB[currentName]) {
+                                        const ing = Object.entries(RECEITAS_DB[currentName]).map(([k,v]) => `${v} ${k}`).join(', ');
+                                        detalhes += `<span class='detalhe-kit'>↳ ${ing}</span>`;
+                                    } else {
+                                        detalhes += `<span class='detalhe-kit text-slate-400'>↳ (Sem receita cadastrada)</span>`;
+                                    }
                                 }
+                                currentName = match[2].trim();
+                            } else {
+                                if(currentName) currentName += ', ' + part.trim();
                             }
                         });
+                        if(currentName) {
+                            if(RECEITAS_DB[currentName]) {
+                                const ing = Object.entries(RECEITAS_DB[currentName]).map(([k,v]) => `${v} ${k}`).join(', ');
+                                detalhes += `<span class='detalhe-kit'>↳ ${ing}</span>`;
+                            } else {
+                                detalhes += `<span class='detalhe-kit text-slate-400'>↳ (Sem receita cadastrada)</span>`;
+                            }
+                        }
                     }
                     html += `<tr><td>${dataF}</td><td>${cliente}</td><td>${d.descricao}</td><td>${detalhes}</td></tr>`;
                 });
