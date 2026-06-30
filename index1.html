@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lena Kits V10.8 - Ingredientes Livres</title>
+    <title>Lena KITS</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -368,6 +368,17 @@
             "Chandelle Chantilly", "Bolacha Bono"
         ];
 
+        // FUNÇÕES PARA CORRIGIR O FUSO HORÁRIO NO BRASIL (GMT-3)
+        function dataLocalHoje() {
+            const d = new Date();
+            d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+            return d.toISOString().split('T')[0];
+        }
+        function primeiroDiaMes() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-01';
+        }
+
         auth.onAuthStateChanged(user => {
             if (user && EMAILS_AUTORIZADOS.includes(user.email)) {
                 document.getElementById('tela-login').classList.add('hide');
@@ -385,7 +396,10 @@
 
         async function inicializar() {
             document.getElementById('ed-setor').innerHTML = document.getElementById('novoSetor').innerHTML;
-            const h = new Date(); document.getElementById('dataInicio').valueAsDate = new Date(h.getFullYear(), h.getMonth(), 1); document.getElementById('dataFim').valueAsDate = h;
+            
+            // Corrige Data
+            document.getElementById('dataInicio').value = primeiroDiaMes(); 
+            document.getElementById('dataFim').value = dataLocalHoje();
             
             await carregarDados();
             atualizarListasIngredientes();
@@ -583,24 +597,89 @@
         window.abrirEditar = (id) => { const c = CLIENTES.find(x => x.id === id); CLIENTE_ATUAL = c; document.getElementById('ed-nome').value = c.nome; document.getElementById('ed-tel').value = c.telefone; document.getElementById('ed-setor').value = c.setor; document.getElementById('ed-dia').value = c.dia_pagamento; document.getElementById('ed-dia2').value = c.dia_pagamento_2 || ""; document.getElementById('modalEditar').classList.remove('hidden'); };
         window.salvarEdicao = async () => { await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ nome: document.getElementById('ed-nome').value.toUpperCase(), setor: document.getElementById('ed-setor').value, telefone: document.getElementById('ed-tel').value, dia_pagamento: document.getElementById('ed-dia').value, dia_pagamento_2: document.getElementById('ed-dia2').value }); fecharModal('modalEditar'); carregarDados(); mostrarToast("Salvo!"); };
 
-        window.abrirVenda = (id) => { CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); document.getElementById('mv-nome').innerText = CLIENTE_ATUAL.nome; document.getElementById('mv-data').valueAsDate = new Date(); CARRINHO = []; ITENS_PERSONALIZADOS = []; mudarModoVenda('padrao'); atualizarCarrinho(); document.getElementById('modalVenda').classList.remove('hidden'); };
+        window.abrirVenda = (id) => { 
+            CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); 
+            document.getElementById('mv-nome').innerText = CLIENTE_ATUAL.nome; 
+            // Corrige Data
+            document.getElementById('mv-data').value = dataLocalHoje(); 
+            CARRINHO = []; ITENS_PERSONALIZADOS = []; 
+            mudarModoVenda('padrao'); 
+            atualizarCarrinho(); 
+            document.getElementById('modalVenda').classList.remove('hidden'); 
+        };
         window.mudarModoVenda = (modo) => { MODO_VENDA = modo; document.getElementById('modo-padrao').classList.toggle('hidden', modo !== 'padrao'); document.getElementById('modo-personalizado').classList.toggle('hidden', modo !== 'personalizado'); document.getElementById('btn-modo-padrao').className = modo==='padrao'?'flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-sky-50':'flex-1 py-3 text-sm font-bold text-slate-400'; document.getElementById('btn-modo-personalizado').className = modo==='personalizado'?'flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-sky-50':'flex-1 py-3 text-sm font-bold text-slate-400'; };
-        window.addCarrinho = () => { const sel = document.getElementById('mv-prod'), n = sel.options[sel.selectedIndex]?.getAttribute('data-nome'), p = parseFloat(sel.value), q = parseFloat(document.getElementById('mv-qtd').value); if(n) { CARRINHO.push({nome:n, qtd:q, total:p*q}); atualizarCarrinho(); } };
+        
+        // ADICIONA FOTOGRAFIA DA RECEITA NO CARRINHO
+        window.addCarrinho = () => { 
+            const sel = document.getElementById('mv-prod'), 
+                  n = sel.options[sel.selectedIndex]?.getAttribute('data-nome'), 
+                  p = parseFloat(sel.value), 
+                  q = parseFloat(document.getElementById('mv-qtd').value); 
+            if(n) { 
+                const snapshot = RECEITAS_DB[n] ? JSON.parse(JSON.stringify(RECEITAS_DB[n])) : null;
+                CARRINHO.push({nome:n, qtd:q, total:p*q, snapshot: snapshot}); 
+                atualizarCarrinho(); 
+            } 
+        };
+        
         window.addPersonalizado = () => { const it = document.getElementById('mv-pers-item').value, q = parseInt(document.getElementById('mv-pers-qtd').value); if(it && q>0) { ITENS_PERSONALIZADOS.push({nome:it, qtd:q}); atualizarListaPers(); } };
-        function atualizarListaPers() { CARRINHO = CARRINHO.filter(i => i.nome !== "Kit Personalizado"); if(ITENS_PERSONALIZADOS.length > 0) { const d = ITENS_PERSONALIZADOS.map(i => `${i.qtd}x ${i.nome}`).join(', '), p = parseFloat(document.getElementById('mv-pers-preco').value) || 0; CARRINHO.push({ nome: "Kit Personalizado", qtd: 1, total: p, descricaoExtra: d }); } atualizarCarrinho(); }
+        function atualizarListaPers() { 
+            CARRINHO = CARRINHO.filter(i => i.nome !== "Kit Personalizado"); 
+            if(ITENS_PERSONALIZADOS.length > 0) { 
+                const d = ITENS_PERSONALIZADOS.map(i => `${i.qtd}x ${i.nome}`).join(', '), 
+                      p = parseFloat(document.getElementById('mv-pers-preco').value) || 0; 
+                let snap = {};
+                ITENS_PERSONALIZADOS.forEach(i => snap[i.nome] = i.qtd);
+                CARRINHO.push({ nome: "Kit Personalizado", qtd: 1, total: p, descricaoExtra: d, snapshot: snap }); 
+            } 
+            atualizarCarrinho(); 
+        }
         document.getElementById('mv-pers-preco').addEventListener('input', atualizarListaPers);
         window.rmItem = (idx) => { if(CARRINHO[idx].nome==="Kit Personalizado"){ ITENS_PERSONALIZADOS = []; document.getElementById('mv-pers-preco').value=""; } CARRINHO.splice(idx,1); atualizarCarrinho(); };
         function atualizarCarrinho() { const div = document.getElementById('mv-lista'); let t = 0; div.innerHTML = ''; CARRINHO.forEach((i, idx) => { t += i.total; div.innerHTML += `<div class="flex justify-between items-center text-sm p-3 bg-white border rounded-xl mb-2"><div><span class="font-bold text-brand-600">${i.qtd}x</span> ${i.nome} <div class="text-[9px] text-slate-400">${i.descricaoExtra||''}</div></div><div class="font-bold text-slate-600">R$ ${i.total.toFixed(2)} <button onclick="rmItem(${idx})" class="ml-2 text-red-300">x</button></div></div>`; }); document.getElementById('mv-total').innerText = `R$ ${t.toFixed(2)}`; }
         
-        window.finalizarVenda = async () => { if(CARRINHO.length===0) return; const dat = document.getElementById('mv-data').value, tot = CARRINHO.reduce((a,b)=>a+b.total, 0), descs = CARRINHO.map(i => i.nome==="Kit Personalizado"?i.descricaoExtra:`${i.qtd}x ${i.nome}`); await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ saldo: (CLIENTE_ATUAL.saldo || 0) - tot, ultima_venda: dat }); await db.collection("transacoes").add({ cliente_id: CLIENTE_ATUAL.id, tipo: 'VENDA', valor: tot, descricao: descs.join(', '), data: dat, timestamp: new Date() }); fecharModal('modalVenda'); carregarDados(); mostrarToast("Venda OK!"); disparaConfete(); };
+        window.finalizarVenda = async () => { 
+            if(CARRINHO.length===0) return; 
+            const dat = document.getElementById('mv-data').value, 
+                  tot = CARRINHO.reduce((a,b)=>a+b.total, 0), 
+                  descs = CARRINHO.map(i => i.nome==="Kit Personalizado"?i.descricaoExtra:`${i.qtd}x ${i.nome}`); 
+            
+            // CONSTRÓI O OBJETO RECEITAS_VENDA PARA ENVIAR PRO BANCO
+            let receitasVenda = {};
+            CARRINHO.forEach(i => {
+                if(i.snapshot) receitasVenda[i.nome] = i.snapshot;
+            });
+
+            await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ saldo: (CLIENTE_ATUAL.saldo || 0) - tot, ultima_venda: dat }); 
+            await db.collection("transacoes").add({ 
+                cliente_id: CLIENTE_ATUAL.id, 
+                tipo: 'VENDA', 
+                valor: tot, 
+                descricao: descs.join(', '), 
+                receitas_venda: receitasVenda, // Fotografia da receita anexada à venda!
+                data: dat, 
+                timestamp: new Date() 
+            }); 
+            fecharModal('modalVenda'); 
+            carregarDados(); 
+            mostrarToast("Venda OK!"); 
+            disparaConfete(); 
+        };
         
         window.verExtrato = async (id) => { CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); document.getElementById('ex-nome').innerText = CLIENTE_ATUAL.nome; document.getElementById('ex-saldo-final').innerText = `R$ ${Math.abs(CLIENTE_ATUAL.saldo).toFixed(2)}`; const tb = document.getElementById('ex-lista'); tb.innerHTML = 'Buscando...'; document.getElementById('modalExtrato').classList.remove('hidden'); const snap = await db.collection("transacoes").where("cliente_id", "==", id).get(); let list = []; snap.forEach(d => list.push({id: d.id, ...d.data()})); list.sort((a,b) => new Date(b.data+'T12:00:00') - new Date(a.data+'T12:00:00')); tb.innerHTML = ''; list.forEach(t => { const isV = t.tipo==='VENDA', isC = t.tipo==='CANCELADO'; tb.innerHTML += `<tr class="border-b border-slate-50"><td class="p-4 ${isC?'riscado':''}">${t.data.split('-').reverse().slice(0,2).join('/')}</td><td class="p-4 ${isC?'riscado':''}"><b>${isV?'🥛 Compra':'💰 PGTO'}</b><br><small>${t.descricao}</small></td><td class="p-4 text-right font-bold ${isC?'text-slate-200':(isV?'text-red-400':'text-green-500')}">${isV?'-':'+'} R$ ${t.valor.toFixed(2)}</td><td class="p-4">${!isC?`<button onclick="cancelarTransacao('${t.id}',${t.valor},'${t.tipo}')" class="text-slate-200 hover:text-red-400"><i class="fa-solid fa-ban"></i></button>`:''}</td></tr>`; }); };
         window.cancelarTransacao = async (idT, val, tip) => { if(!confirm("Cancelar pedido?")) return; let nS = CLIENTE_ATUAL.saldo; if(tip==='VENDA') nS += val; else if(tip==='PAGAMENTO') nS -= val; await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ saldo: nS }); await db.collection("transacoes").doc(idT).update({ tipo: 'CANCELADO', valor: 0, descricao: '🚫 CANCELADO' }); fecharModal('modalExtrato'); carregarDados(); mostrarToast("Cancelado!"); };
 
-        window.abrirPagamento = (id) => { CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); document.getElementById('mp-nome').innerText = CLIENTE_ATUAL.nome; document.getElementById('mp-data').valueAsDate = new Date(); document.getElementById('mp-valor').value = ''; document.getElementById('modalPgto').classList.remove('hidden'); };
+        window.abrirPagamento = (id) => { 
+            CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); 
+            document.getElementById('mp-nome').innerText = CLIENTE_ATUAL.nome; 
+            // Corrige Data
+            document.getElementById('mp-data').value = dataLocalHoje(); 
+            document.getElementById('mp-valor').value = ''; 
+            document.getElementById('modalPgto').classList.remove('hidden'); 
+        };
         window.confirmarPgto = async () => { const v = parseFloat(document.getElementById('mp-valor').value); if(!v) return; await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ saldo: (CLIENTE_ATUAL.saldo || 0) + v }); await db.collection("transacoes").add({ cliente_id: CLIENTE_ATUAL.id, tipo: 'PAGAMENTO', valor: v, data: document.getElementById('mp-data').value, timestamp: new Date() }); fecharModal('modalPgto'); carregarDados(); mostrarToast("Recebido!"); };
 
-        // --- ATUALIZADO: LÓGICA DE LISTA DE COMPRAS À PROVA DE FALHAS ---
+        // --- GERAÇÃO DA LISTA DE COMPRAS OTIMIZADA E À PROVA DE FALHAS ---
         window.gerarListaCompras = async () => {
             const i = document.getElementById('dataInicio').value;
             const f = document.getElementById('dataFim').value;
@@ -611,19 +690,27 @@
             document.getElementById('modalLista').classList.remove('hidden');
             document.getElementById('ml-data').innerText = `${i.split('-').reverse().join('/')} até ${f.split('-').reverse().join('/')}`;
 
-            const snap = await db.collection("transacoes").where("tipo", "==", "VENDA").get();
+            // BUSCA SUPER RÁPIDA DENTRO DO FIREBASE (Precisa de Índice)
+            const snap = await db.collection("transacoes")
+                .where("tipo", "==", "VENDA")
+                .where("data", ">=", i)
+                .where("data", "<=", f)
+                .get();
+                
             let res = {};
 
             snap.forEach(doc => {
                 const v = doc.data();
-                if (v.data >= i && v.data <= f && v.descricao) {
+                if (v.descricao) {
                     
                     const parts = v.descricao.split(', ');
                     let currentQtd = 0;
                     let currentName = "";
 
                     const processItem = (q, n) => {
-                        const rec = RECEITAS_DB[n];
+                        // USA O SNAPSHOT DA RECEITA SE EXISTIR. SE NÃO, USA O ATUAL.
+                        const rec = (v.receitas_venda && v.receitas_venda[n]) ? v.receitas_venda[n] : RECEITAS_DB[n];
+                        
                         if (rec) {
                             for (const [ing, qr] of Object.entries(rec)) {
                                 res[ing] = (res[ing] || 0) + (qr * q);
@@ -634,24 +721,20 @@
                     };
 
                     parts.forEach(part => {
-                        // Verifica se começa com número + x/X + espaço (Ex: "3x Produto")
                         const match = part.trim().match(/^(\d+)[xX]\s+(.*)/);
                         if (match) {
-                            // Se já havia um item na memória, salva ele antes de pegar o novo
                             if (currentName) {
                                 processItem(currentQtd, currentName.trim());
                             }
                             currentQtd = parseInt(match[1]);
                             currentName = match[2];
                         } else {
-                            // Se não começou com "Nx ", junta o pedaço de volta ao nome (pois é uma vírgula dentro do nome do kit)
                             if (currentName) {
                                 currentName += ', ' + part.trim();
                             }
                         }
                     });
                     
-                    // Salva o último item processado daquela venda
                     if (currentName) {
                         processItem(currentQtd, currentName.trim());
                     }
@@ -690,7 +773,7 @@
             else { document.getElementById(`total-${tipo}`).innerText = `R$ ${total.toFixed(2)}`; }
         };
         function formatDatasCob(c) { let s = []; if(c.dia_pagamento) s.push(c.dia_pagamento.split('-').reverse().join('/')); if(c.dia_pagamento_2) s.push(c.dia_pagamento_2.split('-').reverse().join('/')); return s.join(' e '); }
-        function obterStatusDataCompleta(d1, d2) { const hoje = new Date().toISOString().split('T')[0]; let datas = []; if(d1) datas.push(d1); if(d2) datas.push(d2); if(datas.length === 0) return 'nada'; if(datas.includes(hoje)) return 'hoje'; if(datas.some(d => d < hoje)) return 'atrasados'; return 'avencer'; }
+        function obterStatusDataCompleta(d1, d2) { const hoje = dataLocalHoje(); let datas = []; if(d1) datas.push(d1); if(d2) datas.push(d2); if(datas.length === 0) return 'nada'; if(datas.includes(hoje)) return 'hoje'; if(datas.some(d => d < hoje)) return 'atrasados'; return 'avencer'; }
 
         window.salvarConfig = async () => { await db.collection("config_lena").doc("templates").set({ pix: document.getElementById('cfgPix').value, hoje: document.getElementById('msgHoje').value, atrasado: document.getElementById('msgAtrasado').value }); mostrarToast("Configurações Salvas!"); };
         window.mudarAba = (aba) => { document.querySelectorAll('section').forEach(s => s.classList.add('hide')); document.getElementById(`tab-${aba}`).classList.remove('hide'); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('bg-sky-50', 'text-brand-600')); document.getElementById(`btn-${aba}`).classList.add('bg-sky-50', 'text-brand-600'); if(aba==='cobranca') { renderCobranca('hoje'); renderCobranca('avencer'); renderCobranca('atrasados'); } };
@@ -700,7 +783,6 @@
         function linkZ(c, t) { let m = CONFIG[t] || ""; m = m.replace(/{nome}/g, c.nome).replace(/{valor}/g, Math.abs(c.saldo).toFixed(2)).replace(/{pix}/g, CONFIG.pix); return `https://wa.me/55${c.telefone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`; }
         function disparaConfete() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
 
-        // --- ATUALIZADO: RELATÓRIO TAMBÉM À PROVA DE FALHAS ---
         window.gerarRelatorio = async (tipo) => {
             document.getElementById('modalRelatorio').classList.remove('hidden');
             let titulo = '';
@@ -732,8 +814,9 @@
                             const match = part.trim().match(/^(\d+)[xX]\s+(.*)/);
                             if(match) {
                                 if(currentName) {
-                                    if(RECEITAS_DB[currentName]) {
-                                        const ing = Object.entries(RECEITAS_DB[currentName]).map(([k,v]) => `${v} ${k}`).join(', ');
+                                    const rec = (d.receitas_venda && d.receitas_venda[currentName]) ? d.receitas_venda[currentName] : RECEITAS_DB[currentName];
+                                    if(rec) {
+                                        const ing = Object.entries(rec).map(([k,v]) => `${v} ${k}`).join(', ');
                                         detalhes += `<span class='detalhe-kit'>↳ ${ing}</span>`;
                                     } else {
                                         detalhes += `<span class='detalhe-kit text-slate-400'>↳ (Sem receita cadastrada)</span>`;
@@ -745,8 +828,9 @@
                             }
                         });
                         if(currentName) {
-                            if(RECEITAS_DB[currentName]) {
-                                const ing = Object.entries(RECEITAS_DB[currentName]).map(([k,v]) => `${v} ${k}`).join(', ');
+                            const rec = (d.receitas_venda && d.receitas_venda[currentName]) ? d.receitas_venda[currentName] : RECEITAS_DB[currentName];
+                            if(rec) {
+                                const ing = Object.entries(rec).map(([k,v]) => `${v} ${k}`).join(', ');
                                 detalhes += `<span class='detalhe-kit'>↳ ${ing}</span>`;
                             } else {
                                 detalhes += `<span class='detalhe-kit text-slate-400'>↳ (Sem receita cadastrada)</span>`;
