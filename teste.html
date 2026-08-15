@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lena KITS - Danone</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Plus Jakarta Sans', 'sans-serif'], 
+                        display: ['Fredoka', 'sans-serif'] 
+                    },
+                    colors: { 
+                        brand: { 
+                            50: '#fff1f5', 
+                            100: '#ffe4ed', 
+                            200: '#fecddc', 
+                            300: '#fca5c1', 
+                            500: '#f43f72', 
+                            600: '#e11d58', 
+                            700: '#be1248', 
+                            800: '#9f123f', 
+                            900: '#881337', 
+                            orange: '#fb7185' 
+                        } 
+                    },
+                    boxShadow: {
+                        'glow': '0 10px 25px -5px rgba(244, 63, 114, 0.25)',
+                        'card': '0 4px 20px -2px rgba(15, 23, 42, 0.05)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #fafafa; 
+            background-image: radial-gradient(at 0% 0%, rgba(254, 205, 220, 0.3) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(253, 164, 175, 0.2) 0px, transparent 50%),
+                              radial-gradient(at 50% 50%, rgba(244, 63, 114, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+        .hide { display: none !important; }
+        .glass { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7); 
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(241, 245, 249, 0.8);
+        }
+        .riscado { text-decoration: line-through; color: #94a3b8 !important; }
+        .check-custom { accent-color: #f43f72; width: 18px; height: 18px; cursor: pointer; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #fca5c1; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f43f72; }
+
+        @media print {
+            body > *:not(#modalRelatorio) { display: none !important; }
+            html, body { height: auto !important; overflow: visible !important; background: white !important; }
+            #modalRelatorio { display: block !important; position: static !important; inset: auto !important; width: 100% !important; height: auto !important; max-height: none !important; background: white !important; padding: 0 !important; margin: 0 !important; z-index: 9999; overflow: visible !important; }
+            .conteudo-print { box-shadow: none !important; border: none !important; max-width: 100% !important; width: 100% !important; max-height: none !important; height: auto !important; overflow: visible !important; display: block !important; }
+            #corpoRelatorio { overflow: visible !important; height: auto !important; max-height: none !important; }
+            .no-print { display: none !important; }
+            table { width: 100% !important; border-collapse: collapse; border: 1px solid #000; font-size: 11px; }
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; }
+            th { background-color: #eee !important; color: #000 !important; border: 1px solid #000; font-weight: bold; padding: 5px; }
+            td { border: 1px solid #000; padding: 5px; color: #000 !important; vertical-align: top; }
+            .detalhe-kit { font-size: 10px; font-style: italic; display: block; margin-top: 2px; color: #333 !important; }
+        }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex flex-col md:flex-row overflow-hidden select-none">
+
+    <!-- TELA DE LOGIN -->
+    <div id="tela-login" class="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white/95 p-10 rounded-[2.5rem] shadow-2xl max-w-sm w-full text-center space-y-6 border border-white/80 animate-fade-in relative overflow-hidden">
+            <div class="absolute -top-16 -right-16 w-36 h-36 bg-brand-500/10 rounded-full blur-2xl"></div>
+            <div class="w-20 h-20 bg-gradient-to-tr from-brand-500 to-rose-400 text-white rounded-3xl flex items-center justify-center mx-auto text-3xl shadow-glow">
+                <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-display font-bold text-slate-800 tracking-tight">Lena<span class="text-brand-500">Kits</span></h1>
+                <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1">Linha Danone</p>
+            </div>
+            <button onclick="fazerLoginGoogle()" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 border border-slate-200 p-4 rounded-2xl font-bold text-slate-700 transition-all shadow-sm hover:shadow active:scale-95">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="20" alt="Google">
+                Entrar com Google
+            </button>
+            <div id="erro-login" class="text-rose-500 text-xs font-bold bg-rose-50 p-3 rounded-xl border border-rose-100 hidden">
+                <i class="fa-solid fa-triangle-exclamation"></i> Acesso negado!
+            </div>
+        </div>
+    </div>
+
+    <!-- SISTEMA PRINCIPAL -->
+    <div id="sistema-protegido" class="flex flex-col md:flex-row w-full h-full hide">
+        
+        <!-- SIDEBAR (DESKTOP) -->
+        <aside class="w-72 bg-white/80 backdrop-blur-xl border-r border-slate-200/80 hidden md:flex flex-col z-20 shadow-sm no-print justify-between">
+            <div>
+                <div class="p-8 flex items-center justify-between border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-rose-400 flex items-center justify-center text-white text-lg shadow-glow">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-display font-bold text-slate-800 leading-none">Lena<span class="text-brand-500">Kits</span></h1>
+                            <span class="text-[10px] text-brand-600 font-bold uppercase tracking-wider">Danone</span>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="p-5 space-y-1.5">
+                    <button onclick="mudarAba('clientes')" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl font-bold transition-all text-slate-600 hover:bg-brand-50/70 hover:text-brand-600" id="btn-clientes">
+                        <i class="fa-solid fa-users text-lg w-6 text-center"></i> Clientes
+                    </button>
+                    <button onclick="mudarAba('cobranca')" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl font-bold transition-all text-slate-600 hover:bg-brand-50/70 hover:text-brand-600" id="btn-cobranca">
+                        <i class="fa-solid fa-hand-holding-dollar text-lg w-6 text-center"></i> Cobrança
+                    </button>
+                    <button onclick="mudarAba('prod')" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl font-bold transition-all text-slate-600 hover:bg-brand-50/70 hover:text-brand-600" id="btn-prod">
+                        <i class="fa-solid fa-boxes-stacked text-lg w-6 text-center"></i> Estoque & Listas
+                    </button>
+                    <button onclick="mudarAba('novo')" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl font-bold transition-all text-slate-600 hover:bg-brand-50/70 hover:text-brand-600" id="btn-novo">
+                        <i class="fa-solid fa-user-plus text-lg w-6 text-center"></i> Novo Cliente
+                    </button>
+                    <button onclick="mudarAba('config')" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl font-bold transition-all text-slate-600 hover:bg-brand-50/70 hover:text-brand-600" id="btn-config">
+                        <i class="fa-solid fa-gear text-lg w-6 text-center"></i> Ajustes
+                    </button>
+                </nav>
+            </div>
+
+            <div class="p-5 border-t border-slate-100">
+                <button onclick="fazerLogout()" class="w-full flex items-center justify-center gap-2 p-3 text-xs font-bold text-rose-500 hover:bg-rose-50 rounded-2xl transition">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Encerrar Sessão
+                </button>
+            </div>
+        </aside>
+
+        <!-- HEADER MOBILE -->
+        <header class="md:hidden flex items-center justify-between p-4 bg-white/90 backdrop-blur-md border-b border-slate-200 no-print z-20">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-500 to-rose-400 flex items-center justify-center text-white text-sm shadow-sm">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <h1 class="text-lg font-display font-bold text-slate-800">Lena<span class="text-brand-500">Kits</span></h1>
+            </div>
+            <button onclick="fazerLogout()" class="text-xs font-bold text-rose-500 bg-rose-50 px-3 py-1.5 rounded-xl">
+                Sair
+            </button>
+        </header>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="flex-1 flex flex-col h-[calc(100vh-65px)] md:h-screen overflow-hidden relative">
+            
+            <!-- ABA CLIENTES -->
+            <section id="tab-clientes" class="p-4 md:p-8 space-y-6 overflow-y-auto h-full pb-28 md:pb-8">
+                <div class="glass p-3 md:p-4 rounded-3xl shadow-card flex flex-col sm:flex-row gap-3 no-print">
+                    <div class="flex-1 relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
+                        <input type="text" id="buscaNome" onkeyup="renderClientes()" placeholder="Buscar por cliente..." class="w-full pl-11 pr-4 py-2.5 bg-slate-50/80 hover:bg-white focus:bg-white rounded-2xl border border-transparent focus:border-brand-300 outline-none font-bold text-slate-700 transition">
+                    </div>
+                    <select id="filtroSetor" onchange="renderClientes()" class="px-5 py-2.5 bg-slate-50/80 rounded-2xl text-slate-700 font-bold border border-transparent focus:border-brand-300 outline-none cursor-pointer">
+                        <option value="">Todos os Setores</option>
+                        <option value="ROTA1">Rota 1</option>
+                        <option value="ROTA2">Rota 2</option>
+                        <option value="CENTRO">Centro</option>
+                        <option value="RUA">Rua</option>
+                    </select>
+                </div>
+                
+                <div id="gridClientes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5"></div>
+            </section>
+
+            <!-- ABA COBRANÇA -->
+            <section id="tab-cobranca" class="hide p-4 md:p-8 space-y-6 overflow-y-auto h-full pb-28 md:pb-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-display font-bold text-slate-800 flex items-center gap-2.5">
+                            <i class="fa-solid fa-file-invoice-dollar text-brand-500"></i> Painel Financeiro
+                        </h2>
+                        <p class="text-xs text-slate-400 font-medium">Controle de recebimentos e fluxo de cobrança</p>
+                    </div>
+                    <button onclick="gerarRelatorio('cobranca')" class="text-xs md:text-sm bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-2xl font-bold transition flex items-center gap-2 shadow-sm no-print self-start">
+                        <i class="fa-solid fa-print text-brand-500"></i> Imprimir Relatório
+                    </button>
+                </div>
+                
+                <!-- FILTRO POR PERÍODO -->
+                <div class="glass-card p-5 rounded-3xl border border-slate-100 flex flex-col md:flex-row gap-4 items-end no-print shadow-card">
+                    <div class="flex-1 w-full">
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1.5 uppercase tracking-wider">Dia Início</label>
+                        <input type="number" id="cobDiaInicio" min="1" max="31" class="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-2xl font-bold text-slate-700 outline-none focus:border-brand-500 focus:bg-white transition" placeholder="Ex: 1">
+                    </div>
+                    <div class="flex-1 w-full">
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1.5 uppercase tracking-wider">Dia Fim</label>
+                        <input type="number" id="cobDiaFim" min="1" max="31" class="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-2xl font-bold text-slate-700 outline-none focus:border-brand-500 focus:bg-white transition" placeholder="Ex: 15">
+                    </div>
+                    <button onclick="renderCobranca('periodo')" class="w-full md:w-auto bg-gradient-to-r from-brand-500 to-rose-500 text-white px-8 py-3.5 rounded-2xl font-bold hover:shadow-glow transition shadow-md flex items-center justify-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-filter"></i> Filtrar Dias
+                    </button>
+                </div>
+
+                <!-- CARDS RESUMO -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
+                    <div onclick="renderCobranca('hoje')" class="cursor-pointer bg-white/90 p-6 rounded-3xl shadow-card border border-slate-100 hover:border-brand-300 hover:-translate-y-1 transition-all">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-slate-400 font-bold text-xs uppercase tracking-wider">Vence Hoje</span>
+                            <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-sm"><i class="fa-regular fa-clock"></i></div>
+                        </div>
+                        <div class="text-3xl font-black text-slate-800" id="total-hoje">R$ 0,00</div>
+                    </div>
+                    <div onclick="renderCobranca('avencer')" class="cursor-pointer bg-white/90 p-6 rounded-3xl shadow-card border border-slate-100 hover:border-emerald-300 hover:-translate-y-1 transition-all">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-slate-400 font-bold text-xs uppercase tracking-wider">No Prazo</span>
+                            <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-regular fa-calendar-check"></i></div>
+                        </div>
+                        <div class="text-3xl font-black text-slate-800" id="total-avencer">R$ 0,00</div>
+                    </div>
+                    <div onclick="renderCobranca('atrasados')" class="cursor-pointer bg-white/90 p-6 rounded-3xl shadow-card border border-slate-100 hover:border-rose-300 hover:-translate-y-1 transition-all">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-slate-400 font-bold text-xs uppercase tracking-wider">Em Atraso</span>
+                            <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-sm"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        </div>
+                        <div class="text-3xl font-black text-slate-800" id="total-atrasados">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <!-- LISTA DE COBRANÇA -->
+                <div id="listaCobranca" class="bg-white rounded-3xl shadow-card border border-slate-100 overflow-hidden divide-y divide-slate-100"></div>
+            </section>
+
+            <!-- ABA ESTOQUE & PRODUTOS -->
+            <section id="tab-prod" class="hide p-4 md:p-8 space-y-8 overflow-y-auto h-full pb-32">
+                <!-- GERADOR DE LISTA DE COMPRAS -->
+                <div class="bg-gradient-to-tr from-brand-600 to-rose-500 p-6 md:p-8 rounded-[2.5rem] shadow-glow text-white relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <h2 class="text-2xl font-display font-bold mb-1 flex items-center gap-2.5">
+                        <i class="fa-solid fa-basket-shopping"></i> Lista de Compras da Produção
+                    </h2>
+                    <p class="text-xs text-rose-100 font-medium mb-6">Exploda automaticamente os kits vendidos no período selecionado</p>
+                    
+                    <div class="flex flex-col md:flex-row gap-3 items-end bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20">
+                        <div class="flex-1 w-full">
+                            <label class="text-[10px] font-bold text-rose-100 block mb-1 uppercase tracking-wider">Data Início</label>
+                            <input type="date" id="dataInicio" class="w-full p-3 bg-white text-slate-800 rounded-xl font-bold outline-none border-none">
+                        </div>
+                        <div class="flex-1 w-full">
+                            <label class="text-[10px] font-bold text-rose-100 block mb-1 uppercase tracking-wider">Data Fim</label>
+                            <input type="date" id="dataFim" class="w-full p-3 bg-white text-slate-800 rounded-xl font-bold outline-none border-none">
+                        </div>
+                        <button onclick="gerarListaCompras()" class="w-full md:w-auto bg-white hover:bg-rose-50 text-brand-600 px-8 py-3 rounded-xl font-bold transition shadow-lg flex items-center justify-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-list-check"></i> Gerar Lista
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CATÁLOGO DE PRODUTOS & KITS -->
+                <div class="max-w-5xl mx-auto space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="font-display font-bold text-slate-800 text-xl">Produtos & Kits Padrão</h3>
+                            <p class="text-xs text-slate-400 font-medium">Configuração de receitas e tabelas de preços</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="abrirGerenciarIngredientes()" class="text-xs bg-slate-800 hover:bg-slate-900 text-white px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-list"></i> Itens Avulsos
+                            </button>
+                            <button onclick="abrirNovoKit()" class="text-xs bg-brand-50 hover:bg-brand-100 text-brand-600 px-3.5 py-2 rounded-xl font-bold transition border border-brand-200 flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-plus"></i> Novo Produto
+                            </button>
+                            <button onclick="carregarKitsIniciais()" class="text-xs text-slate-400 hover:text-slate-600 font-bold px-2 py-2">
+                                Resetar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="listaProdutos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+            </section>
+
+            <!-- ABA NOVO CLIENTE -->
+            <section id="tab-novo" class="hide p-4 md:p-8 overflow-y-auto h-full pb-28 md:pb-8 flex items-center justify-center">
+                <div class="max-w-lg w-full bg-white p-8 md:p-10 rounded-[2.5rem] shadow-card border border-slate-100 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-500 to-rose-400"></div>
+                    <div class="text-center mb-8">
+                        <div class="w-14 h-14 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <h2 class="text-2xl font-display font-bold text-slate-800">Cadastrar Cliente</h2>
+                        <p class="text-xs text-slate-400 font-medium">Insira as informações do novo ponto de entrega</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 ml-1 mb-1 block uppercase">Nome Completo</label>
+                            <input type="text" id="novoNome" class="w-full p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 outline-none font-bold text-slate-700 focus:bg-white focus:border-brand-500 transition" placeholder="Ex: PADARIA CENTRAL">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-400 ml-1 mb-1 block uppercase">Setor / Rota</label>
+                                <select id="novoSetor" class="w-full p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 outline-none font-bold text-slate-700 focus:bg-white focus:border-brand-500 transition cursor-pointer">
+                                    <option value="ROTA1">Rota 1</option>
+                                    <option value="ROTA2">Rota 2</option>
+                                    <option value="CENTRO">Centro</option>
+                                    <option value="RUA">Rua</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-400 ml-1 mb-1 block uppercase">WhatsApp</label>
+                                <input type="text" id="novoTel" class="w-full p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 outline-none font-bold text-slate-700 focus:bg-white focus:border-brand-500 transition" placeholder="(16) 99999-9999">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 ml-1 mb-1 block uppercase">Dia Fixo de Vencimento</label>
+                            <input type="number" id="novoDia" min="1" max="31" class="w-full p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 outline-none font-bold text-slate-700 focus:bg-white focus:border-brand-500 transition" placeholder="Ex: 10">
+                        </div>
+                        <button onclick="salvarNovoCliente()" class="w-full bg-gradient-to-r from-brand-500 to-rose-500 text-white font-bold py-4 rounded-2xl shadow-glow mt-4 hover:opacity-95 transition active:scale-95">
+                            CADASTRAR CLIENTE
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ABA AJUSTES & RELATÓRIOS -->
+            <section id="tab-config" class="hide p-4 md:p-8 space-y-6 overflow-y-auto h-full pb-28 md:pb-8">
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <!-- CENTRAL DE RELATÓRIOS -->
+                    <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-card border border-slate-100">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-lg"><i class="fa-solid fa-print"></i></div>
+                            <div>
+                                <h3 class="font-display font-bold text-slate-800 text-lg">Central de Relatórios</h3>
+                                <p class="text-xs text-slate-400 font-medium">Exportação e impressão rápida de dados</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-3">
+                            <button onclick="gerarRelatorio('kits')" class="p-5 bg-slate-50 hover:bg-brand-50/60 rounded-2xl border border-slate-100 transition text-left flex items-center gap-4 group">
+                                <div class="w-12 h-12 rounded-xl bg-brand-500 text-white flex items-center justify-center text-xl shadow-sm"><i class="fa-solid fa-box-open"></i></div>
+                                <div>
+                                    <div class="text-[10px] uppercase font-bold text-brand-600">Produção & Cargas</div>
+                                    <div class="text-base font-bold text-slate-800">Kits & Ingredientes (Explodido)</div>
+                                </div>
+                            </button>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button onclick="gerarRelatorio('financeiro')" class="p-5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-100 transition text-left flex items-center gap-3.5">
+                                    <div class="w-10 h-10 rounded-xl bg-slate-700 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                                    <div>
+                                        <div class="text-[10px] uppercase font-bold text-slate-400">Histórico</div>
+                                        <div class="text-sm font-bold text-slate-800">Vendas Feitas</div>
+                                    </div>
+                                </button>
+                                <button onclick="gerarRelatorio('cobranca')" class="p-5 bg-slate-50 hover:bg-rose-50/60 rounded-2xl border border-slate-100 transition text-left flex items-center gap-3.5">
+                                    <div class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                                    <div>
+                                        <div class="text-[10px] uppercase font-bold text-rose-500">Cobrança</div>
+                                        <div class="text-sm font-bold text-slate-800">Contas a Receber</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MENSAGENS WHATSAPP -->
+                    <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-card border border-slate-100 space-y-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg"><i class="fa-brands fa-whatsapp"></i></div>
+                            <div>
+                                <h3 class="font-display font-bold text-slate-800 text-lg">Modelos de Cobrança WhatsApp</h3>
+                                <p class="text-xs text-slate-400 font-medium">Tags disponíveis: <code class="bg-slate-100 px-1 rounded text-slate-600">{nome}</code>, <code class="bg-slate-100 px-1 rounded text-slate-600">{valor}</code>, <code class="bg-slate-100 px-1 rounded text-slate-600">{pix}</code></p>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase">Chave PIX</label>
+                            <input id="cfgPix" class="w-full p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-brand-500 transition" placeholder="Chave PIX">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase">Mensagem: Vence Hoje</label>
+                            <textarea id="msgHoje" class="w-full p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-sm font-medium text-slate-700 outline-none focus:bg-white focus:border-brand-500 transition" rows="2" placeholder="Mensagem Hoje"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase">Mensagem: Atrasado</label>
+                            <textarea id="msgAtrasado" class="w-full p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-sm font-medium text-slate-700 outline-none focus:bg-white focus:border-brand-500 transition" rows="2" placeholder="Mensagem Atrasado"></textarea>
+                        </div>
+                        <button onclick="salvarConfig()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-slate-800 transition shadow-lg active:scale-95">
+                            Salvar Configurações
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- BARRA INFERIOR MOBILE -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200 flex justify-around p-2 z-40 no-print">
+            <button onclick="mudarAba('clientes')" class="nav-btn flex flex-col items-center p-2 text-slate-500 rounded-xl" id="btn-clientes">
+                <i class="fa-solid fa-users text-lg"></i>
+                <span class="text-[10px] font-bold mt-1">Clientes</span>
+            </button>
+            <button onclick="mudarAba('cobranca')" class="nav-btn flex flex-col items-center p-2 text-slate-500 rounded-xl" id="btn-cobranca">
+                <i class="fa-solid fa-hand-holding-dollar text-lg"></i>
+                <span class="text-[10px] font-bold mt-1">Cobrança</span>
+            </button>
+            <button onclick="mudarAba('prod')" class="nav-btn flex flex-col items-center p-2 text-slate-500 rounded-xl" id="btn-prod">
+                <i class="fa-solid fa-boxes-stacked text-lg"></i>
+                <span class="text-[10px] font-bold mt-1">Estoque</span>
+            </button>
+            <button onclick="mudarAba('novo')" class="nav-btn flex flex-col items-center p-2 text-slate-500 rounded-xl" id="btn-novo">
+                <i class="fa-solid fa-user-plus text-lg"></i>
+                <span class="text-[10px] font-bold mt-1">Novo</span>
+            </button>
+            <button onclick="mudarAba('config')" class="nav-btn flex flex-col items-center p-2 text-slate-500 rounded-xl" id="btn-config">
+                <i class="fa-solid fa-gear text-lg"></i>
+                <span class="text-[10px] font-bold mt-1">Ajustes</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- MODAL EDITAR PRODUTO -->
+    <div id="modalEditarKit" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md hidden z-[120] flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-6 md:p-8 animate-slide-up border border-white">
+            <h3 class="font-display font-bold text-xl mb-4 text-slate-800">Editar Produto</h3>
+            <div class="space-y-4">
+                <input type="hidden" id="ek-id">
+                <input type="hidden" id="ek-nome-antigo">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase">Nome do Produto</label>
+                    <input id="ek-nome" class="w-full p-3 bg-slate-50 rounded-xl font-bold border border-slate-200 outline-none text-slate-800 focus:bg-white focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase">Preço (R$)</label>
+                    <input id="ek-preco" type="number" step="0.01" class="w-full p-3 bg-slate-50 rounded-xl font-bold border border-slate-200 outline-none text-slate-800 focus:bg-white focus:border-brand-500">
+                </div>
+            </div>
+            <div class="flex gap-2.5 mt-6">
+                <button onclick="fecharModal('modalEditarKit')" class="flex-1 bg-slate-100 font-bold py-3 rounded-xl text-slate-600 hover:bg-slate-200 transition">Cancelar</button>
+                <button onclick="salvarEdicaoKit()" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-glow transition">Salvar</button>
+            </div>
+            <div class="mt-4 text-center">
+                <button onclick="excluirKit()" class="text-rose-400 text-xs font-bold hover:underline"><i class="fa-solid fa-trash"></i> Excluir este produto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GERENCIAR ITENS AVULSOS -->
+    <div id="modalGerenciarIngredientes" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md hidden z-[130] flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-6 md:p-8 animate-slide-up flex flex-col max-h-[90vh] border border-white">
+            <h3 class="font-display font-bold text-xl mb-1 text-slate-800">Itens / Ingredientes</h3>
+            <p class="text-xs text-slate-400 mb-5 font-medium">Cadastre e gerencie ingredientes para receitas ou personalizações</p>
+            
+            <div class="flex gap-2 mb-4">
+                <input id="gi-novo-nome" class="flex-1 p-3 bg-slate-50 rounded-xl font-bold border border-slate-200 text-sm outline-none focus:bg-white focus:border-brand-500" placeholder="Nome do item...">
+                <button onclick="adicionarIngredienteBase()" class="bg-brand-500 text-white px-5 rounded-xl font-bold text-lg shadow-glow hover:bg-brand-600 transition">+</button>
+            </div>
+            <div id="gi-lista" class="flex-1 overflow-y-auto space-y-2 bg-slate-50 p-3 rounded-2xl mb-5 border border-slate-200/80 min-h-[200px] max-h-[300px]"></div>
+            <button onclick="fecharModal('modalGerenciarIngredientes')" class="w-full bg-slate-100 hover:bg-slate-200 font-bold py-3.5 rounded-xl text-slate-600 transition">Fechar</button>
+        </div>
+    </div>
+
+    <!-- MODAL RELATÓRIO DE IMPRESSÃO -->
+    <div id="modalRelatorio" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md hidden z-[150] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] conteudo-print border border-white">
+            <div class="bg-slate-900 p-6 flex justify-between items-center text-white no-print">
+                <h3 class="font-display font-bold text-xl" id="tituloRelatorio">Relatório</h3>
+                <div class="flex gap-2">
+                    <button onclick="window.print()" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 shadow-sm transition"><i class="fa-solid fa-print"></i> Imprimir</button>
+                    <button onclick="fecharModal('modalRelatorio')" class="bg-white/10 w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/20 transition">✕</button>
+                </div>
+            </div>
+            <div class="p-6 md:p-8 overflow-y-auto flex-1 bg-white" id="corpoRelatorio">Carregando dados...</div>
+        </div>
+    </div>
+
+    <!-- MODAL RECEITA DO KIT -->
+    <div id="modalReceita" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md hidden z-[110] flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-6 md:p-8 animate-slide-up border border-white">
+            <h3 class="font-display font-bold text-xl text-slate-800" id="mr-titulo">Editar Itens</h3>
+            <p class="text-[11px] text-slate-400 mb-5 font-bold uppercase tracking-wider">Composição do Kit</p>
+            
+            <div id="mr-itens" class="space-y-2 max-h-60 overflow-y-auto mb-5 p-3 bg-slate-50 rounded-2xl border border-slate-100"></div>
+            
+            <div class="flex gap-2 mb-6">
+                <input list="lista-ingredientes" id="mr-add-nome" class="flex-1 p-3 border border-slate-200 rounded-xl text-sm font-bold bg-white outline-none focus:border-brand-500" placeholder="Item...">
+                <datalist id="lista-ingredientes"></datalist>
+                
+                <input id="mr-add-qtd" type="number" value="1" min="1" class="w-16 p-3 border border-slate-200 rounded-xl text-center font-bold outline-none focus:border-brand-500">
+                <button onclick="addItemReceita()" class="bg-brand-500 text-white w-12 rounded-xl font-bold shadow-glow hover:bg-brand-600 transition text-lg">+</button>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="fecharModal('modalReceita')" class="flex-1 bg-slate-100 hover:bg-slate-200 py-3.5 rounded-xl font-bold text-slate-600 transition">Cancelar</button>
+                <button onclick="salvarReceita()" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white py-3.5 rounded-xl font-bold shadow-glow transition">Salvar Receita</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NOVO PRODUTO -->
+    <div id="modalNovoKit" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md hidden z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl p-6 md:p-8 animate-slide-up border border-white">
+            <h3 class="font-display font-bold text-xl mb-4 text-slate-800">Novo Produto</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase">Nome do Produto</label>
+                    <input id="nk-nome" class="w-full p-3.5 bg-slate-50 rounded-xl font-bold outline-none border border-slate-200 text-slate-800 focus:bg-white focus:border-brand-500 transition" placeholder="Ex: KIT R$ 200,00">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase">Preço (R$)</label>
+                    <input id="nk-preco" type="number" step="0.01" class="w-full p-3.5 bg-slate-50 rounded-xl font-bold outline-none border border-slate-200 text-slate-800 focus:bg-white focus:border-brand-500 transition" placeholder="0.00">
+                </div>
+            </div>
+            <div class="flex gap-2.5 mt-6">
+                <button onclick="fecharModal('modalNovoKit')" class="flex-1 bg-slate-100 hover:bg-slate-200 font-bold py-3.5 rounded-xl text-slate-600 transition">Cancelar</button>
+                <button onclick="salvarNovoKit()" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl shadow-glow transition">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VENDA -->
+    <div id="modalVenda" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md hidden z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] border border-white">
+            <div class="bg-gradient-to-r from-brand-500 to-rose-500 p-6 flex justify-between items-center text-white">
+                <div>
+                    <h3 class="font-display font-bold text-xl">Lançar Venda</h3>
+                    <p class="text-xs text-rose-100 font-bold" id="mv-nome"></p>
+                </div>
+                <button onclick="fecharModal('modalVenda')" class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/30 transition">✕</button>
+            </div>
+            <div class="flex border-b border-slate-100 bg-slate-50">
+                <button onclick="mudarModoVenda('padrao')" id="btn-modo-padrao" class="flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-brand-50">Kits Prontos</button>
+                <button onclick="mudarModoVenda('personalizado')" id="btn-modo-personalizado" class="flex-1 py-3 text-sm font-bold text-slate-400">Montar Kit</button>
+            </div>
+            <div class="p-6 space-y-4 overflow-y-auto flex-1">
+                <input type="date" id="mv-data" class="w-full p-3 bg-brand-50/80 rounded-xl text-brand-700 outline-none font-bold text-center border border-brand-100">
+                
+                <div id="modo-padrao" class="space-y-2">
+                    <div class="flex gap-2">
+                        <select id="mv-prod" class="flex-1 border border-slate-200 p-3 rounded-xl font-bold text-sm bg-white outline-none focus:border-brand-500"></select>
+                        <input id="mv-qtd" type="number" value="1" min="1" class="w-16 border border-slate-200 p-3 rounded-xl text-center font-bold outline-none focus:border-brand-500">
+                        <button onclick="addCarrinho()" class="bg-brand-500 hover:bg-brand-600 text-white w-12 rounded-xl font-bold text-xl shadow-glow transition">+</button>
+                    </div>
+                </div>
+                
+                <div id="modo-personalizado" class="space-y-3 hidden">
+                    <div class="flex gap-2">
+                        <select id="mv-pers-item" class="flex-1 border border-slate-200 p-3 rounded-xl font-bold text-sm bg-white outline-none focus:border-brand-500"></select>
+                        <input id="mv-pers-qtd" type="number" value="1" min="1" class="w-16 border border-slate-200 p-3 rounded-xl text-center font-bold outline-none focus:border-brand-500">
+                        <button onclick="addPersonalizado()" class="bg-slate-800 hover:bg-slate-900 text-white w-12 rounded-xl font-bold text-xl transition">+</button>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Preço Total do Kit (R$):</label>
+                        <input id="mv-pers-preco" type="number" step="0.01" class="w-full p-2.5 rounded-lg font-bold text-lg text-brand-600 outline-none border border-slate-200 bg-white" placeholder="0.00">
+                    </div>
+                </div>
+                
+                <div id="mv-lista" class="bg-slate-50 p-3 rounded-2xl h-40 overflow-y-auto space-y-2 border border-slate-100"></div>
+                
+                <div class="flex justify-between font-bold text-2xl text-slate-800 pt-2 border-t border-slate-100">
+                    <span class="text-xs text-slate-400 self-center uppercase font-black tracking-wider">Total</span>
+                    <span id="mv-total" class="text-brand-600 font-black">R$ 0,00</span>
+                </div>
+                <button onclick="finalizarVenda()" class="w-full bg-gradient-to-r from-brand-500 to-rose-500 text-white py-4 rounded-2xl font-bold shadow-glow hover:opacity-95 transition active:scale-95">
+                    CONFIRMAR VENDA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PAGAMENTO -->
+    <div id="modalPgto" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md hidden z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl p-8 text-center relative animate-slide-up border border-white">
+            <button onclick="fecharModal('modalPgto')" class="absolute top-5 right-6 text-slate-300 hover:text-slate-500">✕</button>
+            <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+            <h3 class="font-display font-bold text-xl text-slate-800" id="mp-nome"></h3>
+            <input type="date" id="mp-data" class="w-full my-4 p-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-bold text-slate-700">
+            <div class="relative mb-6">
+                <span class="absolute left-6 top-3.5 text-emerald-400 font-bold text-2xl">R$</span>
+                <input type="number" step="0.01" id="mp-valor" class="w-full pl-12 pr-4 py-3 bg-emerald-50 rounded-2xl text-3xl font-black text-emerald-600 outline-none text-center border border-emerald-100" placeholder="0.00">
+            </div>
+            <button onclick="confirmarPgto()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-emerald-500/20 transition active:scale-95">
+                CONFIRMAR RECEBIMENTO
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL HISTÓRICO / EXTRATO -->
+    <div id="modalExtrato" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md hidden z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-white">
+            <div class="bg-white p-6 border-b border-slate-100 flex justify-between items-center">
+                <div>
+                    <h3 class="font-display font-bold text-xl text-slate-800">Histórico de Transações</h3>
+                    <p class="text-xs font-bold text-brand-500 uppercase tracking-wider" id="ex-nome"></p>
+                </div>
+                <button onclick="fecharModal('modalExtrato')" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition">✕</button>
+            </div>
+            <div class="p-0 overflow-y-auto flex-1 bg-slate-50">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-100/80 text-slate-400 text-[10px] uppercase font-bold sticky top-0">
+                        <tr>
+                            <th class="p-4">Data</th>
+                            <th class="p-4">Movimentação</th>
+                            <th class="p-4 text-right">Valor</th>
+                            <th class="p-4"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="ex-lista" class="text-sm divide-y divide-slate-100 bg-white"></tbody>
+                </table>
+            </div>
+            <div class="p-5 bg-white border-t border-slate-100 flex justify-between items-center">
+                <span class="text-slate-400 text-xs font-bold uppercase tracking-wider">Saldo Atual</span>
+                <span id="ex-saldo-final" class="font-black text-2xl text-slate-800">R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LISTA DE COMPRAS GERADA -->
+    <div id="modalLista" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md hidden z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl p-0 flex flex-col max-h-[85vh] border border-white">
+            <div class="bg-gradient-to-r from-brand-500 to-rose-500 p-6 flex justify-between items-center text-white">
+                <div>
+                    <h3 class="font-display font-bold text-xl">Lista de Compras</h3>
+                    <p class="text-xs font-bold text-rose-100" id="ml-data"></p>
+                </div>
+                <button onclick="fecharModal('modalLista')" class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/30 transition">✕</button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 bg-slate-50 space-y-3">
+                <div id="ml-conteudo" class="space-y-2.5 font-bold text-slate-700"></div>
+            </div>
+            <div class="p-6 bg-white border-t border-slate-100">
+                <button onclick="copiarLista()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-emerald-500/20 flex justify-center items-center gap-2 transition active:scale-95">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> COPIAR PARA WHATSAPP
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR CLIENTE -->
+    <div id="modalEditar" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md hidden z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-6 md:p-8 relative animate-slide-up border border-white">
+            <h3 class="font-display font-bold text-xl mb-6 text-slate-800">Editar Cliente</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase">Nome</label>
+                    <input id="ed-nome" class="w-full p-3.5 bg-slate-50 rounded-xl font-bold outline-none border border-slate-200 text-slate-800 focus:bg-white focus:border-brand-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase">Setor</label>
+                        <select id="ed-setor" class="w-full p-3.5 border border-slate-200 rounded-xl bg-slate-50 font-bold text-slate-800 outline-none"></select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase">WhatsApp</label>
+                        <input id="ed-tel" class="w-full p-3.5 bg-slate-50 rounded-xl outline-none font-bold border border-slate-200 text-slate-800 focus:bg-white focus:border-brand-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase">Dia do Vencimento Fixo</label>
+                    <input type="number" id="ed-dia" min="1" max="31" class="w-full p-3.5 border border-slate-200 rounded-xl font-bold text-slate-800 bg-slate-50 outline-none focus:bg-white focus:border-brand-500" placeholder="Ex: 10">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="fecharModal('modalEditar')" class="flex-1 bg-slate-100 hover:bg-slate-200 font-bold py-3.5 rounded-xl text-slate-600 transition">Voltar</button>
+                <button onclick="salvarEdicao()" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl shadow-glow transition">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-24 md:bottom-8 right-8 bg-slate-900/90 backdrop-blur-md text-white px-6 py-3.5 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-[160] font-bold flex items-center gap-2.5 border border-slate-700 text-sm">
+        <i class="fa-solid fa-circle-check text-brand-400"></i> <span id="toast-msg">Sucesso!</span>
+    </div>
+
+    <!-- SCRIPT JS ORIGINAL (LÓGICA INTACTA) -->
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyARN99dDUlHkoZNkuvErMiPeg6R87palco", authDomain: "lena-be4e0.firebaseapp.com", projectId: "lena-be4e0", storageBucket: "lena-be4e0.firebasestorage.app", messagingSenderId: "459762572912", appId: "1:459762572912:web:c998f79ffb1eb8d7d59eb5" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        const EMAILS_AUTORIZADOS = ["gabi.souza09.gs@gmail.com", "mar.junior.silva@gmail.com"];
+        let CLIENTES = [], PRODUTOS = [], RECEITAS_DB = {}, CARRINHO = [], CLIENTE_ATUAL = null, CONFIG = {};
+        let MODO_VENDA = 'padrao'; let ITENS_PERSONALIZADOS = []; let ITENS_RECEITA_TEMP = {}; let KIT_EDITANDO = null;
+
+        let INGREDIENTES_BASE = [];
+        const INGREDIENTES_PADRAO = [
+            "Chamyto", "Bandeja Neston", "Chambinho", "Bandeja Morango", "Nescauzinho", 
+            "Chamyto Cereal", "Chandelle/Danette", "Bandeja Vitamina", "Cereal (Nescau/Snow)", 
+            "Grego", "Garrafinha", "Yakult (Unidade)", "Yakult Light (Unidade)", 
+            "Chandelle Chantilly", "Bolacha Bono"
+        ];
+
+        function dataLocalHoje() {
+            const d = new Date();
+            d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+            return d.toISOString().split('T')[0];
+        }
+        function primeiroDiaMes() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-01';
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user && EMAILS_AUTORIZADOS.includes(user.email)) {
+                document.getElementById('tela-login').classList.add('hide');
+                document.getElementById('sistema-protegido').classList.remove('hide');
+                inicializar();
+            } else {
+                if(user) { auth.signOut(); document.getElementById('erro-login').classList.remove('hide'); }
+                document.getElementById('tela-login').classList.remove('hide');
+                document.getElementById('sistema-protegido').classList.add('hide');
+            }
+        });
+
+        async function fazerLoginGoogle() { try { await auth.signInWithPopup(provider); } catch(e){ alert("Erro login"); } }
+        async function fazerLogout() { await auth.signOut(); }
+
+        async function inicializar() {
+            document.getElementById('ed-setor').innerHTML = document.getElementById('novoSetor').innerHTML;
+            document.getElementById('dataInicio').value = primeiroDiaMes(); 
+            document.getElementById('dataFim').value = dataLocalHoje();
+            
+            await carregarDados();
+            atualizarListasIngredientes();
+            mudarAba('clientes');
+        }
+
+        async function carregarDados() {
+            const sC = await db.collection("clientes").get(); CLIENTES = []; sC.forEach(d => CLIENTES.push({id: d.id, ...d.data()})); CLIENTES.sort((a,b)=>a.nome.localeCompare(b.nome));
+            const sP = await db.collection("produtos_lena").get(); PRODUTOS = []; sP.forEach(d => PRODUTOS.push({id: d.id, ...d.data()}));
+            const sR = await db.collection("receitas_lena").get(); RECEITAS_DB = {}; sR.forEach(d => RECEITAS_DB[d.id] = d.data());
+            
+            try { const sCfg = await db.collection("config_lena").doc("templates").get(); if(sCfg.exists) CONFIG = sCfg.data(); document.getElementById('cfgPix').value = CONFIG.pix||""; document.getElementById('msgHoje').value = CONFIG.hoje||""; document.getElementById('msgAtrasado').value = CONFIG.atrasado||""; } catch(e){}
+            
+            try { 
+                const sIng = await db.collection("config_lena").doc("ingredientes").get(); 
+                if(sIng.exists && sIng.data().lista) { INGREDIENTES_BASE = sIng.data().lista; } 
+                else { INGREDIENTES_BASE = [...INGREDIENTES_PADRAO]; }
+            } catch(e) { INGREDIENTES_BASE = [...INGREDIENTES_PADRAO]; }
+
+            renderClientes(); renderProdutos();
+        }
+
+        window.renderProdutos = () => { 
+            const l = document.getElementById('listaProdutos'), s = document.getElementById('mv-prod'); 
+            l.innerHTML = ''; s.innerHTML = '<option value="">Selecione o Produto...</option>'; 
+            PRODUTOS.sort((a,b)=>a.preco-b.preco).forEach(p => { 
+                const rec = RECEITAS_DB[p.nome] || {}; 
+                const dS = Object.entries(rec).map(([n, q])=>`${q}x ${n}`).join(', ')||"Sem receita"; 
+                l.innerHTML += `<div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex justify-between items-start group">
+                    <div class="flex-1 pr-3">
+                        <b class="text-slate-800 text-base flex items-center gap-2 group-hover:text-brand-600 transition-colors">
+                            ${p.nome} 
+                            <button onclick="abrirEditarKit('${p.id}', '${p.nome}', ${p.preco})" class="text-slate-300 hover:text-brand-500" title="Editar Produto"><i class="fa-solid fa-pen text-xs"></i></button>
+                        </b>
+                        <p class="text-xs text-slate-400 mt-1.5 line-clamp-2">${dS}</p>
+                    </div>
+                    <button onclick="abrirReceita('${p.nome}')" class="text-brand-500 text-xs font-bold hover:underline whitespace-nowrap bg-brand-50 px-3 py-1.5 rounded-xl">Editar Receita</button>
+                </div>`; 
+                s.innerHTML += `<option value="${p.preco}" data-nome="${p.nome}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>`; 
+            }); 
+        };
+
+        window.abrirEditarKit = (id, nome, preco) => {
+            document.getElementById('ek-id').value = id;
+            document.getElementById('ek-nome-antigo').value = nome;
+            document.getElementById('ek-nome').value = nome;
+            document.getElementById('ek-preco').value = preco;
+            document.getElementById('modalEditarKit').classList.remove('hidden');
+        };
+
+        window.salvarEdicaoKit = async () => {
+            const id = document.getElementById('ek-id').value;
+            const nomeAntigo = document.getElementById('ek-nome-antigo').value;
+            const novoNome = document.getElementById('ek-nome').value.toUpperCase();
+            const novoPreco = parseFloat(document.getElementById('ek-preco').value);
+
+            if(novoNome && novoPreco) {
+                await db.collection("produtos_lena").doc(id).update({nome: novoNome, preco: novoPreco});
+                if(nomeAntigo !== novoNome && RECEITAS_DB[nomeAntigo]) {
+                    await db.collection("receitas_lena").doc(novoNome).set(RECEITAS_DB[nomeAntigo]);
+                    await db.collection("receitas_lena").doc(nomeAntigo).delete();
+                }
+                fecharModal('modalEditarKit');
+                await carregarDados();
+                mostrarToast("Produto atualizado!");
+            }
+        };
+
+        window.excluirKit = async () => {
+            if(!confirm("Tem certeza que deseja excluir este Produto permanentemente?")) return;
+            const id = document.getElementById('ek-id').value;
+            const nomeAntigo = document.getElementById('ek-nome-antigo').value;
+            
+            await db.collection("produtos_lena").doc(id).delete();
+            if(RECEITAS_DB[nomeAntigo]) await db.collection("receitas_lena").doc(nomeAntigo).delete();
+            
+            fecharModal('modalEditarKit');
+            await carregarDados();
+            mostrarToast("Produto excluído!");
+        };
+
+        window.abrirNovoKit = () => { document.getElementById('nk-nome').value = ''; document.getElementById('nk-preco').value = ''; document.getElementById('modalNovoKit').classList.remove('hidden'); };
+        window.salvarNovoKit = async () => {
+            const n = document.getElementById('nk-nome').value.toUpperCase(), p = parseFloat(document.getElementById('nk-preco').value);
+            if(n && p) {
+                await db.collection("produtos_lena").add({nome: n, preco: p});
+                fecharModal('modalNovoKit');
+                carregarDados();
+                mostrarToast("Kit Criado!");
+            }
+        };
+
+        function atualizarListasIngredientes() {
+            const dataListIng = document.getElementById('lista-ingredientes');
+            const sP = document.getElementById('mv-pers-item');
+            dataListIng.innerHTML = '';
+            sP.innerHTML = '<option value="">Selecione um item...</option>';
+            INGREDIENTES_BASE.sort().forEach(i => {
+                dataListIng.innerHTML += `<option value="${i}">`;
+                sP.innerHTML += `<option value="${i}">${i}</option>`;
+            });
+        }
+
+        window.abrirGerenciarIngredientes = () => {
+            renderListaGerenciarIngredientes();
+            document.getElementById('modalGerenciarIngredientes').classList.remove('hidden');
+        };
+
+        function renderListaGerenciarIngredientes() {
+            const div = document.getElementById('gi-lista');
+            div.innerHTML = '';
+            INGREDIENTES_BASE.sort().forEach((ing, index) => {
+                div.innerHTML += `<div class="flex justify-between items-center bg-white p-3 rounded-xl text-sm border border-slate-200/60 shadow-sm"><span class="font-bold text-slate-700">${ing}</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="editarIngredienteBase(${index}, '${ing}')" class="text-brand-400 hover:text-brand-600 px-2"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="removerIngredienteBase(${index})" class="text-red-300 hover:text-red-500 px-2"><i class="fa-solid fa-trash"></i></button>
+                </div></div>`;
+            });
+        }
+
+        window.adicionarIngredienteBase = async () => {
+            const input = document.getElementById('gi-novo-nome');
+            const nome = input.value.trim();
+            if(nome && !INGREDIENTES_BASE.includes(nome)) {
+                INGREDIENTES_BASE.push(nome);
+                await db.collection("config_lena").doc("ingredientes").set({ lista: INGREDIENTES_BASE });
+                input.value = '';
+                renderListaGerenciarIngredientes();
+                atualizarListasIngredientes();
+                mostrarToast("Adicionado!");
+            }
+        };
+
+        window.removerIngredienteBase = async (index) => {
+            if(confirm("Remover este item avulso do sistema?")) {
+                INGREDIENTES_BASE.splice(index, 1);
+                await db.collection("config_lena").doc("ingredientes").set({ lista: INGREDIENTES_BASE });
+                renderListaGerenciarIngredientes();
+                atualizarListasIngredientes();
+                mostrarToast("Removido!");
+            }
+        };
+
+        window.editarIngredienteBase = async (index, nomeAntigo) => {
+            const novoNome = prompt("Digite o novo nome para o item:", nomeAntigo);
+            if(!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return;
+            
+            const nomeFinal = novoNome.trim();
+            if(INGREDIENTES_BASE.includes(nomeFinal)) {
+                alert("Já existe um item com esse nome!");
+                return;
+            }
+
+            INGREDIENTES_BASE[index] = nomeFinal;
+            await db.collection("config_lena").doc("ingredientes").set({ lista: INGREDIENTES_BASE });
+
+            let atualizouReceita = false;
+            for (const [nomeKit, receita] of Object.entries(RECEITAS_DB)) {
+                if (receita[nomeAntigo]) {
+                    receita[nomeFinal] = receita[nomeAntigo]; 
+                    delete receita[nomeAntigo]; 
+                    await db.collection("receitas_lena").doc(nomeKit).set(receita);
+                    atualizouReceita = true;
+                }
+            }
+
+            if(atualizouReceita) {
+                await carregarDados(); 
+            }
+
+            renderListaGerenciarIngredientes();
+            atualizarListasIngredientes();
+            mostrarToast("Nome alterado com sucesso!");
+        };
+
+        window.abrirReceita = (nomeKit) => { KIT_EDITANDO = nomeKit; ITENS_RECEITA_TEMP = JSON.parse(JSON.stringify(RECEITAS_DB[nomeKit] || {})); document.getElementById('mr-titulo').innerText = nomeKit; renderItensReceitaModal(); document.getElementById('modalReceita').classList.remove('hidden'); };
+        function renderItensReceitaModal() { const div = document.getElementById('mr-itens'); div.innerHTML = ''; Object.entries(ITENS_RECEITA_TEMP).forEach(([nome, qtd]) => { div.innerHTML += `<div class="flex justify-between items-center bg-white p-2.5 rounded-xl text-sm border border-slate-100"><span>${nome}</span><div class="flex items-center gap-3"><b>${qtd}</b><button onclick="removerItemReceita('${nome}')" class="text-rose-300 hover:text-rose-500">✕</button></div></div>`; }); }
+        
+        window.addItemReceita = () => { 
+            const n = document.getElementById('mr-add-nome').value.trim(); 
+            const q = parseInt(document.getElementById('mr-add-qtd').value); 
+            if(n && q > 0) { 
+                ITENS_RECEITA_TEMP[n] = (ITENS_RECEITA_TEMP[n] || 0) + q; 
+                document.getElementById('mr-add-nome').value = ''; 
+                renderItensReceitaModal(); 
+            } 
+        };
+
+        window.removerItemReceita = (n) => { delete ITENS_RECEITA_TEMP[n]; renderItensReceitaModal(); };
+        window.salvarReceita = async () => { await db.collection("receitas_lena").doc(KIT_EDITANDO).set(ITENS_RECEITA_TEMP); fecharModal('modalReceita'); await carregarDados(); mostrarToast("Salvo!"); };
+
+        window.renderClientes = () => { 
+            const g = document.getElementById('gridClientes'), b = document.getElementById('buscaNome').value.toUpperCase(), s = document.getElementById('filtroSetor').value; 
+            g.innerHTML = ''; 
+            CLIENTES.filter(c => (!b || c.nome.includes(b)) && (!s || c.setor === s)).forEach(c => { 
+                const d = (c.saldo || 0) < -0.05; 
+                g.innerHTML += `<div class="bg-white/90 backdrop-blur-md rounded-3xl p-6 shadow-card border border-slate-100 hover:border-brand-200 transition-all duration-300 relative group flex flex-col justify-between">
+                    <div>
+                        <button onclick="abrirEditar('${c.id}')" class="absolute top-5 right-5 text-slate-300 hover:text-brand-500 transition p-1"><i class="fa-solid fa-pen text-xs"></i></button>
+                        <div class="flex items-center gap-3.5 mb-5">
+                            <div class="w-12 h-12 rounded-2xl ${d?'bg-rose-50 text-rose-500':'bg-emerald-50 text-emerald-500'} flex items-center justify-center font-display font-bold text-xl shadow-inner">${c.nome.charAt(0)}</div>
+                            <div class="overflow-hidden pr-6">
+                                <h3 class="font-bold text-slate-800 truncate text-base">${c.nome}</h3>
+                                <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">${c.setor}</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50/80 p-3.5 rounded-2xl mb-4 border border-slate-100 flex justify-between items-end">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Saldo</p>
+                                <p class="text-xl font-black ${d?'text-rose-500':'text-emerald-500'}">R$ ${Math.abs(c.saldo||0).toFixed(2)}</p>
+                            </div>
+                            <div class="text-right text-xs font-bold text-slate-500">Venc: ${formatDatasCob(c)}</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="abrirVenda('${c.id}')" class="bg-brand-50 hover:bg-brand-100 text-brand-600 p-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition">Vender</button>
+                        <button onclick="abrirPagamento('${c.id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 p-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition">Receber</button>
+                        <button onclick="verExtrato('${c.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition">Histórico</button>
+                    </div>
+                </div>`; 
+            }); 
+        };
+        function formatDatasCob(c) { return c.dia_pagamento ? 'Dia ' + c.dia_pagamento : '--'; }
+
+        window.salvarNovoCliente = async () => { const n = document.getElementById('novoNome').value.toUpperCase(); if(n) { await db.collection("clientes").add({ nome: n, setor: document.getElementById('novoSetor').value, telefone: document.getElementById('novoTel').value, dia_pagamento: document.getElementById('novoDia').value, saldo: 0 }); document.getElementById('novoNome').value = ''; carregarDados(); mudarAba('clientes'); mostrarToast("Adicionado!"); } };
+        window.abrirEditar = (id) => { const c = CLIENTES.find(x => x.id === id); CLIENTE_ATUAL = c; document.getElementById('ed-nome').value = c.nome; document.getElementById('ed-tel').value = c.telefone; document.getElementById('ed-setor').value = c.setor; document.getElementById('ed-dia').value = c.dia_pagamento || ""; document.getElementById('modalEditar').classList.remove('hidden'); };
+        window.salvarEdicao = async () => { await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ nome: document.getElementById('ed-nome').value.toUpperCase(), setor: document.getElementById('ed-setor').value, telefone: document.getElementById('ed-tel').value, dia_pagamento: document.getElementById('ed-dia').value }); fecharModal('modalEditar'); carregarDados(); mostrarToast("Salvo!"); };
+
+        window.abrirVenda = (id) => { 
+            CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); 
+            document.getElementById('mv-nome').innerText = CLIENTE_ATUAL.nome; 
+            document.getElementById('mv-data').value = dataLocalHoje(); 
+            CARRINHO = []; ITENS_PERSONALIZADOS = []; 
+            mudarModoVenda('padrao'); 
+            atualizarCarrinho(); 
+            document.getElementById('modalVenda').classList.remove('hidden'); 
+        };
+        window.mudarModoVenda = (modo) => { MODO_VENDA = modo; document.getElementById('modo-padrao').classList.toggle('hidden', modo !== 'padrao'); document.getElementById('modo-personalizado').classList.toggle('hidden', modo !== 'personalizado'); document.getElementById('btn-modo-padrao').className = modo==='padrao'?'flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-brand-50':'flex-1 py-3 text-sm font-bold text-slate-400'; document.getElementById('btn-modo-personalizado').className = modo==='personalizado'?'flex-1 py-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600 bg-brand-50':'flex-1 py-3 text-sm font-bold text-slate-400'; };
+        
+        window.addCarrinho = () => { 
+            const sel = document.getElementById('mv-prod'), 
+                  n = sel.options[sel.selectedIndex]?.getAttribute('data-nome'), 
+                  p = parseFloat(sel.value), 
+                  q = parseFloat(document.getElementById('mv-qtd').value); 
+            if(n) { 
+                const snapshot = RECEITAS_DB[n] ? JSON.parse(JSON.stringify(RECEITAS_DB[n])) : null;
+                CARRINHO.push({nome:n, qtd:q, total:p*q, snapshot: snapshot}); 
+                atualizarCarrinho(); 
+            } 
+        };
+        
+        window.addPersonalizado = () => { const it = document.getElementById('mv-pers-item').value, q = parseInt(document.getElementById('mv-pers-qtd').value); if(it && q>0) { ITENS_PERSONALIZADOS.push({nome:it, qtd:q}); atualizarListaPers(); } };
+        function atualizarListaPers() { 
+            CARRINHO = CARRINHO.filter(i => i.nome !== "Kit Personalizado"); 
+            if(ITENS_PERSONALIZADOS.length > 0) { 
+                const d = ITENS_PERSONALIZADOS.map(i => `${i.qtd}x ${i.nome}`).join(', '), 
+                      p = parseFloat(document.getElementById('mv-pers-preco').value) || 0; 
+                let snap = {};
+                ITENS_PERSONALIZADOS.forEach(i => snap[i.nome] = i.qtd);
+                CARRINHO.push({ nome: "Kit Personalizado", qtd: 1, total: p, descricaoExtra: d, snapshot: snap }); 
+            } 
+            atualizarCarrinho(); 
+        }
+        document.getElementById('mv-pers-preco').addEventListener('input', atualizarListaPers);
+        window.rmItem = (idx) => { if(CARRINHO[idx].nome==="Kit Personalizado"){ ITENS_PERSONALIZADOS = []; document.getElementById('mv-pers-preco').value=""; } CARRINHO.splice(idx,1); atualizarCarrinho(); };
+        function atualizarCarrinho() { const div = document.getElementById('mv-lista'); let t = 0; div.innerHTML = ''; CARRINHO.forEach((i, idx) => { t += i.total; div.innerHTML += `<div class="flex justify-between items-center text-sm p-3 bg-white border border-slate-100 rounded-xl mb-1.5 shadow-sm"><div><span class="font-bold text-brand-600">${i.qtd}x</span> ${i.nome} <div class="text-[10px] text-slate-400">${i.descricaoExtra||''}</div></div><div class="font-bold text-slate-700">R$ ${i.total.toFixed(2)} <button onclick="rmItem(${idx})" class="ml-2 text-rose-300 hover:text-rose-500 font-bold">✕</button></div></div>`; }); document.getElementById('mv-total').innerText = `R$ ${t.toFixed(2)}`; }
+        
+        window.finalizarVenda = async () => { 
+            if(CARRINHO.length===0) return; 
+            const dat = document.getElementById('mv-data').value, 
+                  tot = CARRINHO.reduce((a,b)=>a+b.total, 0), 
+                  descs = CARRINHO.map(i => i.nome==="Kit Personalizado"?i.descricaoExtra:`${i.qtd}x ${i.nome}`); 
+            
+            let receitasVenda = {};
+            CARRINHO.forEach(i => {
+                if(i.snapshot) receitasVenda[i.nome] = i.snapshot;
+            });
+
+            await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ saldo: (CLIENTE_ATUAL.saldo || 0) - tot, ultima_venda: dat }); 
+            await db.collection("transacoes").add({ 
+                cliente_id: CLIENTE_ATUAL.id, 
+                tipo: 'VENDA', 
+                valor: tot, 
+                descricao: descs.join(', '), 
+                receitas_venda: receitasVenda, 
+                data: dat, 
+                timestamp: new Date() 
+            }); 
+            fecharModal('modalVenda'); 
+            carregarDados(); 
+            mostrarToast("Venda OK!"); 
+            disparaConfete(); 
+        };
+        
+        window.verExtrato = async (id) => { CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); document.getElementById('ex-nome').innerText = CLIENTE_ATUAL.nome; document.getElementById('ex-saldo-final').innerText = `R$ ${Math.abs(CLIENTE_ATUAL.saldo).toFixed(2)}`; const tb = document.getElementById('ex-lista'); tb.innerHTML = '<td colspan="4" class="p-8 text-center text-slate-400">Buscando...</td>'; document.getElementById('modalExtrato').classList.remove('hidden'); const snap = await db.collection("transacoes").where("cliente_id", "==", id).get(); let list = []; snap.forEach(d => list.push({id: d.id, ...d.data()})); list.sort((a,b) => new Date(b.data+'T12:00:00') - new Date(a.data+'T12:00:00')); tb.innerHTML = ''; list.forEach(t => { const isV = t.tipo==='VENDA', isC = t.tipo==='CANCELADO'; tb.innerHTML += `<tr class="border-b border-slate-50"><td class="p-4 ${isC?'riscado':''}">${t.data.split('-').reverse().slice(0,2).join('/')}</td><td class="p-4 ${isC?'riscado':''}"><b>${isV?'🥛 Compra':'💰 PGTO'}</b><br><small class="text-slate-400">${t.descricao}</small></td><td class="p-4 text-right font-bold ${isC?'text-slate-200':(isV?'text-rose-500':'text-emerald-500')}">${isV?'-':'+'} R$ ${t.valor.toFixed(2)}</td><td class="p-4">${!isC?`<button onclick="cancelarTransacao('${t.id}',${t.valor},'${t.tipo}')" class="text-slate-300 hover:text-rose-500 p-1"><i class="fa-solid fa-ban"></i></button>`:''}</td></tr>`; }); };
+        window.cancelarTransacao = async (idT, val, tip) => { if(!confirm("Cancelar pedido?")) return; let nS = CLIENTE_ATUAL.saldo; if(tip==='VENDA') nS += val; else if(tip==='PAGAMENTO') nS -= val; await db.collection("clientes").doc(CLIENTE_ATUAL.id).update({ saldo: nS }); await db.collection("transacoes").doc(idT).update({ tipo: 'CANCELADO', valor: 0, descricao: '🚫 CANCELADO' }); fecharModal('modalExtrato'); carregarDados(); mostrarToast("Cancelado!"); };
+
+        window.abrirPagamento = (id) => { 
+            CLIENTE_ATUAL = CLIENTES.find(c => c.id === id); 
+            document.getElementById('mp-nome').innerText = CLIENTE_ATUAL.nome; 
+            document.getElementById('mp-data').value = dataLocalHoje(); 
+            document.getElementById('mp-valor').value = ''; 
+            document.getElementById('modalPgto').classList.remove('hidden'); 
+        };
+
+        window.confirmarPgto = async () => { 
+            const v = parseFloat(document.getElementById('mp-valor').value); 
+            if(!v) return; 
+
+            let nSaldo = (CLIENTE_ATUAL.saldo || 0) + v;
+            let updates = { saldo: nSaldo };
+
+            await db.collection("clientes").doc(CLIENTE_ATUAL.id).update(updates); 
+            await db.collection("transacoes").add({ cliente_id: CLIENTE_ATUAL.id, tipo: 'PAGAMENTO', valor: v, data: document.getElementById('mp-data').value, timestamp: new Date() }); 
+            
+            fecharModal('modalPgto'); 
+            carregarDados(); 
+            mostrarToast("Recebido!"); 
+        };
+
+        window.gerarListaCompras = async () => {
+            const i = document.getElementById('dataInicio').value;
+            const f = document.getElementById('dataFim').value;
+            if(!i || !f) return;
+
+            const div = document.getElementById('ml-conteudo');
+            div.innerHTML = 'Buscando...';
+            document.getElementById('modalLista').classList.remove('hidden');
+            document.getElementById('ml-data').innerText = `${i.split('-').reverse().join('/')} até ${f.split('-').reverse().join('/')}`;
+
+            const snap = await db.collection("transacoes")
+                .where("tipo", "==", "VENDA")
+                .where("data", ">=", i)
+                .where("data", "<=", f)
+                .get();
+                
+            let res = {};
+
+            snap.forEach(doc => {
+                const v = doc.data();
+                if (v.descricao) {
+                    const parts = v.descricao.split(', ');
+                    let currentQtd = 0;
+                    let currentName = "";
+
+                    const processItem = (q, n) => {
+                        const rec = (v.receitas_venda && v.receitas_venda[n]) ? v.receitas_venda[n] : RECEITAS_DB[n];
+                        if (rec) {
+                            for (const [ing, qr] of Object.entries(rec)) {
+                                res[ing] = (res[ing] || 0) + (qr * q);
+                            }
+                        } else {
+                            res[n] = (res[n] || 0) + q;
+                        }
+                    };
+
+                    parts.forEach(part => {
+                        const match = part.trim().match(/^(\d+)[xX]\s+(.*)/);
+                        if (match) {
+                            if (currentName) {
+                                processItem(currentQtd, currentName.trim());
+                            }
+                            currentQtd = parseInt(match[1]);
+                            currentName = match[2];
+                        } else {
+                            if (currentName) {
+                                currentName += ', ' + part.trim();
+                            }
+                        }
+                    });
+                    
+                    if (currentName) {
+                        processItem(currentQtd, currentName.trim());
+                    }
+                }
+            });
+
+            div.innerHTML = '';
+            Object.entries(res).sort().forEach(([n, q], idx) => {
+                div.innerHTML += `<div class="flex items-center gap-3 p-3.5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                    <input type="checkbox" checked class="check-custom" id="check-${idx}">
+                    <div class="flex-1 font-bold text-slate-800">${n}</div>
+                    <input type="number" value="${q}" id="qtd-${idx}" class="w-16 p-1.5 bg-brand-50 rounded-xl text-center font-bold text-brand-600 outline-none border border-brand-100">
+                </div>`;
+            });
+        };
+
+        window.copiarLista = () => { const its = document.getElementById('ml-conteudo').children; let t = `*LISTA DE COMPRAS LENA*\n\n`; for(let i=0; i<its.length; i++){ if(document.getElementById(`check-${i}`).checked) t += `[ ] ${document.getElementById(`qtd-${i}`).value} - ${its[i].querySelector('div.flex-1').innerText}\n`; } navigator.clipboard.writeText(t); mostrarToast("Copiada!"); };
+
+        window.renderCobranca = (tipo) => {
+            const lista = document.getElementById('listaCobranca'); lista.innerHTML = ''; let total = 0; let filtrados = [];
+            if (tipo === 'periodo') {
+                const i = parseInt(document.getElementById('cobDiaInicio').value); 
+                const f = parseInt(document.getElementById('cobDiaFim').value);
+                if (!i || !f) { mostrarToast("Selecione os dias!"); return; }
+                filtrados = CLIENTES.filter(c => { 
+                    if (c.saldo >= -0.01) return false; 
+                    const d1 = parseInt(c.dia_pagamento) || 0; 
+                    return (d1 >= i && d1 <= f); 
+                });
+            } else { filtrados = CLIENTES.filter(c => c.saldo < -0.01 && obterStatusDia(c.dia_pagamento) === tipo); }
+
+            if (filtrados.length === 0) { lista.innerHTML = '<p class="p-10 text-center opacity-40 font-bold">Tudo limpo para este período! ✨</p>'; } 
+            else { if (tipo === 'periodo') { lista.innerHTML = `<div class="p-4 bg-brand-50/80 border-b border-brand-100 text-brand-800 font-bold text-center flex justify-between px-8"><span>Total no Período Filtrado:</span><span id="total-periodo" class="text-xl font-black">R$ 0,00</span></div>`; } }
+
+            filtrados.forEach(c => { 
+                total += Math.abs(c.saldo); let dS = formatDatasCob(c); let tipoMsgWhatsApp = (tipo === 'periodo') ? 'hoje' : tipo; 
+                lista.innerHTML += `<div class="p-5 flex justify-between items-center hover:bg-slate-50 border-b border-slate-100 last:border-0 transition"><div><div class="font-bold text-slate-800 text-base">${c.nome}</div><div class="text-xs text-slate-400 font-medium">Vencimento: ${dS}</div></div><div class="flex items-center gap-3"><div class="font-black text-rose-500 bg-rose-50 px-3.5 py-1.5 rounded-xl text-sm border border-rose-100">R$ ${Math.abs(c.saldo).toFixed(2)}</div><a href="${linkZ(c, tipoMsgWhatsApp)}" target="_blank" class="w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/20 hover:scale-105 transition"><i class="fa-brands fa-whatsapp text-lg"></i></a></div></div>`; 
+            });
+
+            if (tipo === 'periodo') { const el = document.getElementById('total-periodo'); if(el) el.innerText = `R$ ${total.toFixed(2)}`; } 
+            else { document.getElementById(`total-${tipo}`).innerText = `R$ ${total.toFixed(2)}`; }
+        };
+
+        function obterStatusDia(diaStr) { 
+            if(!diaStr) return 'nada'; 
+            const dia = parseInt(diaStr); 
+            const hoje = new Date().getDate(); 
+            if(dia === hoje) return 'hoje'; 
+            if(dia < hoje) return 'atrasados'; 
+            return 'avencer'; 
+        }
+
+        window.salvarConfig = async () => { await db.collection("config_lena").doc("templates").set({ pix: document.getElementById('cfgPix').value, hoje: document.getElementById('msgHoje').value, atrasado: document.getElementById('msgAtrasado').value }); mostrarToast("Configurações Salvas!"); };
+        window.mudarAba = (aba) => { 
+            document.querySelectorAll('section').forEach(s => s.classList.add('hide')); 
+            const targetSection = document.getElementById(`tab-${aba}`);
+            if(targetSection) targetSection.classList.remove('hide'); 
+            
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('bg-brand-50', 'text-brand-600');
+                b.classList.add('text-slate-600');
+            }); 
+            document.querySelectorAll(`[id="btn-${aba}"]`).forEach(btn => {
+                btn.classList.add('bg-brand-50', 'text-brand-600');
+                btn.classList.remove('text-slate-600');
+            });
+            
+            if(aba==='cobranca') { 
+                renderCobranca('hoje'); 
+                renderCobranca('avencer'); 
+                renderCobranca('atrasados'); 
+            } 
+        };
+        window.fecharModal = (id) => document.getElementById(id).classList.add('hidden');
+        window.mostrarToast = (m) => { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = m; t.classList.remove('translate-y-20', 'opacity-0'); setTimeout(()=>t.classList.add('translate-y-20','opacity-0'),3000); };
+        window.carregarKitsIniciais = async () => { if(!confirm("Resetar Kits Padrão?")) return; const kS = [{n:"KIT R$ 60,00",p:60},{n:"KIT R$ 88,00",p:88},{n:"KIT R$ 95,00",p:95},{n:"KIT R$ 100,00",p:100},{n:"KIT R$ 110,00",p:110},{n:"KIT R$ 115,00",p:115},{n:"KIT R$ 150,00",p:150}]; for(const k of kS) { if(!PRODUTOS.find(p=>p.nome===k.n)) await db.collection("produtos_lena").add({nome:k.n, preco:k.p}); } carregarDados(); };
+        function linkZ(c, t) { let m = CONFIG[t] || ""; m = m.replace(/{nome}/g, c.nome).replace(/{valor}/g, Math.abs(c.saldo).toFixed(2)).replace(/{pix}/g, CONFIG.pix); return `https://wa.me/55${c.telefone.replace(/\D/g,'')}?text=${encodeURIComponent(m)}`; }
+        function disparaConfete() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
+
+        window.gerarRelatorio = async (tipo) => {
+            document.getElementById('modalRelatorio').classList.remove('hidden');
+            let titulo = '';
+            if(tipo === 'kits') titulo = 'Relatório de Produção (Kits)';
+            else if(tipo === 'financeiro') titulo = 'Histórico de Vendas';
+            else titulo = 'Contas a Receber (Cobrança)';
+            
+            document.getElementById('tituloRelatorio').innerText = titulo;
+            const corpo = document.getElementById('corpoRelatorio');
+            corpo.innerHTML = '<div class="text-center p-10"><i class="fa-solid fa-spinner fa-spin text-3xl text-brand-500"></i><p class="mt-2 text-slate-400 font-bold">Buscando dados...</p></div>';
+
+            const snap = await db.collection("transacoes").limit(200).get();
+            let docs = []; snap.forEach(d => docs.push(d.data()));
+            docs.sort((a,b) => b.timestamp - a.timestamp);
+
+            let html = '<table class="w-full text-left font-sans text-xs md:text-sm" border="1" cellpadding="5" cellspacing="0">';
+            
+            if (tipo === 'kits') {
+                html += '<thead><tr><th>Data</th><th>Cliente</th><th>Kit Vendido</th><th>Conteúdo (Detalhe)</th></tr></thead><tbody>';
+                docs.filter(d => d.tipo === 'VENDA').forEach(d => {
+                    const cliente = CLIENTES.find(c => c.id === d.cliente_id)?.nome || 'Cliente Removido';
+                    const dataF = d.data.split('-').reverse().join('/');
+                    let detalhes = "";
+                    if(d.descricao) {
+                        const parts = d.descricao.split(', ');
+                        let currentName = "";
+                        
+                        parts.forEach(part => {
+                            const match = part.trim().match(/^(\d+)[xX]\s+(.*)/);
+                            if(match) {
+                                if(currentName) {
+                                    const rec = (d.receitas_venda && d.receitas_venda[currentName]) ? d.receitas_venda[currentName] : RECEITAS_DB[currentName];
+                                    if(rec) {
+                                        const ing = Object.entries(rec).map(([k,v]) => `${v} ${k}`).join(', ');
+                                        detalhes += `<span class='detalhe-kit'>↳ ${ing}</span>`;
+                                    } else {
+                                        detalhes += `<span class='detalhe-kit text-slate-400'>↳ (Sem receita cadastrada)</span>`;
+                                    }
+                                }
+                                currentName = match[2].trim();
+                            } else {
+                                if(currentName) currentName += ', ' + part.trim();
+                            }
+                        });
+                        if(currentName) {
+                            const rec = (d.receitas_venda && d.receitas_venda[currentName]) ? d.receitas_venda[currentName] : RECEITAS_DB[currentName];
+                            if(rec) {
+                                const ing = Object.entries(rec).map(([k,v]) => `${v} ${k}`).join(', ');
+                                detalhes += `<span class='detalhe-kit'>↳ ${ing}</span>`;
+                            } else {
+                                detalhes += `<span class='detalhe-kit text-slate-400'>↳ (Sem receita cadastrada)</span>`;
+                            }
+                        }
+                    }
+                    html += `<tr><td>${dataF}</td><td>${cliente}</td><td>${d.descricao}</td><td>${detalhes}</td></tr>`;
+                });
+            } else if (tipo === 'cobranca') {
+                html += '<thead><tr><th>Cliente</th><th align="right">Total Devido</th><th>Dia do Vencimento</th></tr></thead><tbody>';
+                let totalGeral = 0;
+                CLIENTES.filter(c => c.saldo < -0.05).forEach(c => {
+                    totalGeral += Math.abs(c.saldo);
+                    let v1 = c.dia_pagamento ? 'Dia ' + c.dia_pagamento : '-';
+                    html += `<tr><td>${c.nome}</td><td align="right" style="color:red">R$ ${Math.abs(c.saldo).toFixed(2)}</td><td>${v1}</td></tr>`;
+                });
+                html += `<tr><td align="right"><b>TOTAL:</b></td><td align="right"><b>R$ ${totalGeral.toFixed(2)}</b></td><td></td></tr>`;
+            } else {
+                html += '<thead><tr><th>Data</th><th>Cliente</th><th>Tipo</th><th align="right">Valor</th></tr></thead><tbody>';
+                let totalVendas = 0; let totalPgto = 0;
+                docs.forEach(d => {
+                    const cliente = CLIENTES.find(c => c.id === d.cliente_id)?.nome || 'Cliente Removido';
+                    const dataF = d.data.split('-').reverse().join('/');
+                    if(d.tipo !== 'CANCELADO') {
+                        if(d.tipo === 'VENDA') totalVendas += d.valor; else totalPgto += d.valor;
+                        html += `<tr><td>${dataF}</td><td>${cliente}</td><td>${d.tipo}</td><td align="right">R$ ${d.valor.toFixed(2)}</td></tr>`;
+                    }
+                });
+                html += `<tr><td colspan="3" align="right"><b>Total Vendas:</b></td><td align="right">R$ ${totalVendas.toFixed(2)}</td></tr>`;
+                html += `<tr><td colspan="3" align="right"><b>Total Recebido:</b></td><td align="right">R$ ${totalPgto.toFixed(2)}</td></tr>`;
+            }
+            html += '</tbody></table>';
+            corpo.innerHTML = html;
+        };
+    </script>
+</body>
+</html>
